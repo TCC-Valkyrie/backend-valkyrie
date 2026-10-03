@@ -6,7 +6,6 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import valkyrie.Backend.Enum.BucketType;
-
 import java.io.IOException;
 import java.util.UUID;
 
@@ -28,7 +27,7 @@ public class S3Service {
     @Value("${aws.s3.bucket.client}")
     private String bucketClient;
 
-    public String upload(MultipartFile arquivo, BucketType bucketType) throws IOException {
+    public String uploadSS3(MultipartFile arquivo, BucketType bucketType) throws IOException {
 
         String nomeOriginal = arquivo.getOriginalFilename();
 

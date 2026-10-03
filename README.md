@@ -1,3 +1,7 @@
+#banco
+
+cd db
+
 docker build -t mysql-crime .
 
 docker run -d --name mysql-crime -p 3306:3306 mysql-crime
@@ -9,3 +13,9 @@ crime_password
 USE crime_db;
 
 SHOW TABLES;
+
+
+# java
+
+mvn clean package -DskipTests
+docker compose up --build

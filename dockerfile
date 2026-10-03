@@ -1,8 +1,13 @@
-FROM mysql:8.4
+FROM eclipse-temurin:25-jre
 
-ENV MYSQL_ROOT_PASSWORD=root
-ENV MYSQL_DATABASE=crime_db
-ENV MYSQL_USER=crime_user
-ENV MYSQL_PASSWORD=crime_password
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY 01-init.sql /docker-entrypoint-initdb.d/01-init.sql
+WORKDIR /app
+
+COPY out/artifacts/Backend_jar/*.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
