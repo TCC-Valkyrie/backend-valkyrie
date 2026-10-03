@@ -16,14 +16,16 @@ public class ModeloConnector {
         this.restClient = builder.build();
     }
 
-    public Boolean ChamaModelo(MultipartFile imagem) {
-        Map<String, MultipartFile> body = Map.of(
-                "imagem", imagem
+    public Boolean ChamaModelo(MultipartFile imagem, String nomeArquivo) {
+        Map<String, Object> body = Map.of(
+                "imagem", imagem,
+                "nomeArquivo", nomeArquivo
         );
 
         return restClient
                 .method(HttpMethod.POST)
                 .uri("http://localhost:8080/file/teste")
+                //.body(body)
                 .retrieve()
                 .body(Boolean.class);
     }

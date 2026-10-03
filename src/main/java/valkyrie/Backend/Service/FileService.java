@@ -3,10 +3,12 @@ package valkyrie.Backend.Service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import valkyrie.Backend.Connectors.ModeloConnector;
+import valkyrie.Backend.Enum.BucketType;
 import valkyrie.Backend.Models.Entities.ResultadoCrime;
 import valkyrie.Backend.Models.Entities.ConsultarCrimesPorMesResponse;
 import valkyrie.Backend.Repository.ResultadoCrimeRepository;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,9 +17,12 @@ public class FileService {
 
     private final ResultadoCrimeRepository repository;
     private final ModeloConnector modeloConnector;
-    public FileService(ResultadoCrimeRepository repository, ModeloConnector modeloConnector) {
+    private final S3Service s3Service;
+
+    public FileService(ResultadoCrimeRepository repository, ModeloConnector modeloConnector, S3Service s3Service) {
         this.repository = repository;
         this.modeloConnector = modeloConnector;
+        this.s3Service = s3Service;
     }
 
     private ResultadoCrime inserir(
@@ -41,10 +46,18 @@ public class FileService {
         return repository.quantidadeCrimesPorMes();
     }
 
-    public ResultadoCrime ChamaModelo(MultipartFile imagem) {
+    public ResultadoCrime ChamaModelo(MultipartFile imagem) throws Exception {
+        String nomeArquivoClient = "";
 
-        Boolean isCrime = modeloConnector.ChamaModelo(imagem);
+        try {
+            s3Service.upload(imagem, BucketType.RAW);
+            s3Service.upload(imagem, BucketType.TRUSTED);
+            nomeArquivoClient = s3Service.upload(imagem, BucketType.CLIENT);
+        } catch (IOException io) {
+            throw new Exception("Erro no bucket");
+        }
 
+        Boolean isCrime = modeloConnector.ChamaModelo(imagem, nomeArquivoClient);
         return this.inserir(isCrime, 100.00);
     }
 }
