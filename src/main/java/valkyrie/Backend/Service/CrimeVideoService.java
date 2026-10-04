@@ -69,7 +69,7 @@ public class CrimeVideoService {
 
         Path outputPattern = framesDir.resolve("frame_%06d.jpg");
 
-        String ffmpegPath = "C:\\ffmpeg\\ffmpeg-2026-10-01-git-0b01ed76aa-essentials_build\\bin\\ffmpeg.exe";
+//        String ffmpegPath = "C:\\ffmpeg\\ffmpeg-2026-10-01-git-0b01ed76aa-essentials_build\\bin\\ffmpeg.exe";
 
         ProcessBuilder processBuilder = new ProcessBuilder(
                 ffmpegPath,

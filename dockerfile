@@ -6,7 +6,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY out/artifacts/Backend_jar/*.jar app.jar
+COPY out/artifacts/Backend.jar app.jar
 
 EXPOSE 8080
 

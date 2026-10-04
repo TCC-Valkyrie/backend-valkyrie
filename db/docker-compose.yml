@@ -1,0 +1,17 @@
+services:
+  mysql:
+    build: .
+    container_name: crime-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: crime_db
+      MYSQL_USER: crime_user
+      MYSQL_PASSWORD: crime_password
+    ports:
+      - "3306:3306"
+    networks:
+      - crime-network
+
+networks:
+  crime-network:
+    external: true

@@ -7,3 +7,15 @@ services:
       FFMPEG_PATH: ffmpeg
       AWS_REGION: us-east-1
       AWS_S3_BUCKET: meu-bucket
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-crime:3306/crime_db
+      SPRING_DATASOURCE_USERNAME: crime_user
+      SPRING_DATASOURCE_PASSWORD: crime_password
+      AWS_ACCESS_KEY_ID: ASIARHBDUCH7OT7AX67W
+      AWS_SECRET_ACCESS_KEY: USkZzoreJYd51PwYL5l7nCb2BOPwvL/UBEyjWCp9
+      AWS_SESSION_TOKEN: IQoJb3JpZ2luX2VjEPT//////////wEaCXVzLXdlc3QtMiJHMEUCIQCAnCoj4zaa37Ag3ChjtrSUQbJ8j0AYI1Fccn1TlTqNswIgPEJzg6GdKBKx4eRIAV30ltJBMrUrhcfROKXr234CP8MqvwIIvf//////////ARABGgwwODM4MjY1Nzc5MTgiDDGlT3BhXbTQdmap3iqTAtHONvklkSayAbZ5SgZJjrPApwo5W+3YzNwupf2QPfIB+O4ERE1f0e28nqe2zsctNMWidYCBaGKdDx9hDOWJre/JVn/mvusR8Ww+9aHUJz4FW7DluP0FQiSn943d+miJkjjmMu6lLg65/6uER8vSgI3V3MseWMTIcayXBuO99ZZRiCJWaN0oV066f+RPqI3owBcvNrxDDDOiVRjNRYH9+UPPMZgpurpv3z7Hy05e1LW/Wqw8bbtKdqzgGUk0nCR4ExyOQ1UT3r6FOMm+wzakiwiVTziWvgDy4JQsQ3ztn6R3z8fzPK1i8KywFbIARkBSPkfrAuhVen9X+CZ+qZp2H/KwScArPlEsaOUw6d54Jx44WNYnMICZh9YGOp0BKqFFMdnRf22Da3JtBee6lxcxkNSViLoX7hccJFuvNPYQWfsSK5LOChE5j3B282BmBiiwyhRzY3PkQBEWnMB/JxQKb6aUiFqz13pu25cc4dKZLPlrJRW3sM/827KM6/e5vCuYiKdZHjWnfCPpXifB9FSbG027Zusfd3+fAzGQYDoZUPewAQte/HvLO0JxbIJ14JuIiaLrdHNxjegOgA==
+    networks:
+      - crime-network
+
+networks:
+  crime-network:
+    external: true
