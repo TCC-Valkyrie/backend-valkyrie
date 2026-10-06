@@ -1,6 +1,5 @@
 package valkyrie.Backend.Service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,17 +18,18 @@ import java.util.zip.ZipOutputStream;
 
 @Service
 public class CrimeVideoService {
+
     private final S3Client s3Client;
 
-    public CrimeVideoService(S3Client s3Client) {
-        this.s3Client = s3Client;
-    }
-
-    @Value("${aws.s3.bucket.trusted}")
+    @Value("${aws.s3.bucket.client}")
     private String bucket;
 
     @Value("${ffmpeg.path}")
     private String ffmpegPath;
+
+    public CrimeVideoService(S3Client s3Client) {
+        this.s3Client = s3Client;
+    }
 
     public String processVideo(MultipartFile video) throws Exception {
 
@@ -68,7 +68,7 @@ public class CrimeVideoService {
     ) throws IOException, InterruptedException {
 
         Path outputPattern = framesDir.resolve("frame_%06d.jpg");
-
+        
 //        String ffmpegPath = "C:\\ffmpeg\\ffmpeg-2026-10-01-git-0b01ed76aa-essentials_build\\bin\\ffmpeg.exe";
 
         ProcessBuilder processBuilder = new ProcessBuilder(
@@ -76,7 +76,7 @@ public class CrimeVideoService {
                 "-i",
                 videoPath.toString(),
                 "-vf",
-                "fps=1/0.3",
+                "fps=1/0.3,scale=224:224",
                 "-q:v",
                 "2",
                 outputPattern.toString()
@@ -183,4 +183,93 @@ public class CrimeVideoService {
         }
     }
 
+    public String processImage(MultipartFile image) throws Exception {
+
+        Path workDir = Files.createTempDirectory("image-processing-");
+
+        try {
+            Path imagePath = workDir.resolve(
+                    UUID.randomUUID() + ".jpg"
+            );
+
+            image.transferTo(imagePath);
+
+            Path resizedImagePath = workDir.resolve(
+                    UUID.randomUUID() + "_244x244.jpg"
+            );
+
+            resizeImage(imagePath, resizedImagePath);
+
+            String s3Key = "images/" + UUID.randomUUID() + "/image.jpg";
+
+            uploadImageToS3(
+                    resizedImagePath,
+                    s3Key
+            );
+
+            return s3Key;
+
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            deleteDirectory(workDir);
+        }
+    }
+
+
+    private void resizeImage(
+            Path imagePath,
+            Path outputPath
+    ) throws IOException, InterruptedException {
+
+//        String ffmpegPath = "C:\\ffmpeg\\ffmpeg-2026-10-01-git-0b01ed76aa-essentials_build\\bin\\ffmpeg.exe";
+
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                ffmpegPath,
+                "-i",
+                imagePath.toString(),
+                "-vf",
+                "scale=244:244",
+                "-q:v",
+                "2",
+                outputPath.toString()
+        );
+
+        processBuilder.redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getInputStream())
+        )) {
+            while (reader.readLine() != null) {
+            }
+        }
+
+        int exitCode = process.waitFor();
+
+        if (exitCode != 0) {
+            throw new IllegalStateException(
+                    "Erro ao redimensionar imagem. FFmpeg exit code: "
+                            + exitCode
+            );
+        }
+    }
+
+    private void uploadImageToS3(
+            Path imagePath,
+            String s3Key
+    ) throws IOException {
+
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(s3Key)
+                .contentType("image/jpeg")
+                .build();
+
+        s3Client.putObject(
+                request,
+                RequestBody.fromFile(imagePath)
+        );
+    }
 }
