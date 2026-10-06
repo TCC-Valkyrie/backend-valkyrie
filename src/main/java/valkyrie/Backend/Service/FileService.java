@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import valkyrie.Backend.Connectors.ModeloConnector;
 import valkyrie.Backend.Enum.BucketType;
+import valkyrie.Backend.Exceptions.ArquivoInvalidoException;
 import valkyrie.Backend.Models.Entities.ResultadoCrime;
 import valkyrie.Backend.Repository.ResultadoCrimeRepository;
 
@@ -51,14 +52,18 @@ public class FileService {
         String nomeArquivoClient = "";
 
         String contentType = imagem.getContentType();
+        nomeArquivoClient = s3Service.uploadSS3(imagem, BucketType.RAW);
 
+        System.out.println("Arquivo subido para RAW: " + nomeArquivoClient);
         try {
             if (contentType != null && contentType.startsWith("video/")) {
-                nomeArquivoClient = crimeVideoService.processVideo(imagem);
-            } else {
-                s3Service.uploadSS3(imagem, BucketType.RAW);
                 s3Service.uploadSS3(imagem, BucketType.TRUSTED);
-                nomeArquivoClient = s3Service.uploadSS3(imagem, BucketType.CLIENT);
+                nomeArquivoClient = crimeVideoService.processVideo(imagem);
+            } else if (contentType != null && contentType.startsWith("image/")){
+                s3Service.uploadSS3(imagem, BucketType.TRUSTED);
+                nomeArquivoClient = crimeVideoService.processImage(imagem);
+            } else {
+                throw new ArquivoInvalidoException("Arquivo não é imagem nem video");
             }
         } catch (IOException io) {
             throw new Exception("Erro no bucket");
