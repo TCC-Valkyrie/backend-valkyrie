@@ -5,8 +5,6 @@ docker network create crime-network
 
 cd db
 
-[//]: # (docker compose up -d --build)
-
 docker compose up -d --build
 
 docker exec -it crime-mysql mysql -u crime_user -p
