@@ -1,0 +1,300 @@
+- name: Instalar Python, Java e DB e rodar projetos
+  hosts: all
+  become: yes
+  vars:
+    app_dir: /api
+    aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+    aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+    aws_region: "{{ AWS_DEFAULT_REGION | default('us-east-1') }}"
+    aws_session_token: "{{ AWS_SESSION_TOKEN }}"
+    java_app_dir: "{{ app_dir }}/java-API"
+    java_db_dir: "{{ app_dir }}/java-API/db"
+    java_network: crime-network
+    aws_bucket_raw: "teste-bucket-tcc1"
+    aws_bucket_trusted: "teste-bucket-tcc1"
+    aws_bucket_client: "teste-bucket-tcc1"
+
+  tasks:
+    - name: Parar o processo Main.py se estiver rodando
+      shell: |
+        pkill -f "{{ app_dir }}/Main.py" || true
+      ignore_errors: yes
+
+    - name: Atualizar cache do apt
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Instalar dependências básicas
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3.12-venv
+          - openjdk-17-jdk
+          - git
+          - ca-certificates
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Criar diretório para chave GPG do Docker
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Adicionar chave GPG oficial do Docker
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+
+    - name: Adicionar repositório oficial do Docker
+      apt_repository:
+        repo: "deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+
+    - name: Instalar Docker Engine e plugins
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Habilitar e iniciar o Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Criar diretório do app
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Clonar ou atualizar repositório
+      git:
+        repo: "https://github.com/TCC-Valkyrie/backend-valkyrie.git"
+        dest: "{{ app_dir }}"
+        version: "{{ github_ref | default('main') }}"
+        force: yes
+
+
+    - name: Desinstalar pacotes listados no requirements.txt
+      command: "pip uninstall -y -r {{ app_dir }}/python-API-modelo/requirements.txt"
+
+    - name: Instalar PySpark e dependências no virtualenv
+      pip:
+        requirements: "{{ app_dir }}/python-API-modelo/requirements.txt"
+        state: present        
+
+
+    # - name: Apagar arquivo .env se existir
+    #   ansible.builtin.file:
+    #     path: "{{ app_dir }}/.env"
+    #     state: absent
+    #   ignore_errors: yes
+    
+    # - name: Criar arquivo .env
+    #   ansible.builtin.lineinfile:
+    #     path: "{{ app_dir }}/.env"
+    #     line: "BUCKET_NAME_RAW=bkt-wattson-raw-285143259382"
+    #     create: yes
+    #     state: present
+
+    # - name: Adicionar variáveis ao .env
+    #   ansible.builtin.lineinfile:
+    #     path: "{{ app_dir }}/.env"
+    #     insertafter: EOF
+    #     line: "{{ item }}"
+    #   loop:
+    #     - "BUCKET_NAME_TRUSTED=bkt-wattson-trusted-285143259382"
+    #     - "BUCKET_NAME_CLIENT=bkt-wattson-client-285143259382"
+    #     - "DEV_MODE=0"
+
+    # - name: Criar diretório ~/.aws
+    #   file:
+    #     path: "{{ aws_dir }}"
+    #     state: directory
+    #     mode: '0700'
+    #     owner: ubuntu
+    #     group: ubuntu
+
+    - name: Criar arquivo de credenciais AWS
+      copy:
+        dest: "{{ aws_dir }}/credentials"
+        mode: '0600'
+        owner: ubuntu
+        group: ubuntu
+        content: |
+          [default]
+          aws_access_key_id = {{ aws_access_key | trim }}
+          aws_secret_access_key = {{ aws_secret_key | trim }}
+          aws_session_token = {{ aws_session_token | trim }}
+     
+    - name: Mostrar o conteúdo do arquivo de credenciais AWS
+      command: cat /home/ubuntu/.aws/credentials
+      register: credentials_content
+      ignore_errors: yes
+
+    - name: Criar diretório ~/.aws para root
+      file:
+        path: "/root/.aws"
+        state: directory
+        mode: '0700'
+        owner: root
+        group: root
+
+    - name: Criar arquivo de credenciais AWS no root
+      copy:
+        dest: "/root/.aws/credentials"
+        mode: '0600'
+        owner: root
+        group: root
+        content: |
+          [default]
+          aws_access_key_id = {{ aws_access_key | trim }}
+          aws_secret_access_key = {{ aws_secret_key | trim }}
+          aws_session_token = {{ aws_session_token | trim }}
+
+    - name: Mostrar o conteúdo do arquivo de credenciais AWS root
+      command: cat /root/.aws/credentials
+      register: credentials_content
+      ignore_errors: yes
+          
+
+    - name: Exibir conteúdo do arquivo de credenciais
+      debug:
+        var: credentials_content.stdout
+
+        
+    - name: Executar Main.py dentro do virtualenv como ubuntu
+      become_user: ubuntu
+      shell: |
+        nohup python {{ app_dir }}/python-API-mdoelo/API_modelo.py > /dev/null 2>&1 &
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+        AWS_SESSION_TOKEN: "{{ aws_session_token }}"
+        AWS_DEFAULT_REGION: "{{ aws_region }}"
+        GOOGLE_APPLICATION_CREDENTIALS: "{{ gcp_credentials_file }}"
+        BASEDOSDADOS_BILLING_PROJECT_ID: "{{ gcp_project_id }}"
+
+
+    # - name: Executar Main.py dentro do virtualenv
+    #   shell: |
+    #     nohup {{ app_dir }}/venv/bin/python {{ app_dir }}/Main.py > {{ app_dir }}/main.log 2>&1 &
+    #   environment:
+    #     AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+    #     AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    #     AWS_SESSION_TOKEN: "{{  aws_session_token  }}"
+    #     AWS_DEFAULT_REGION: "{{ aws_region }}"
+
+
+    - name: Verificar se a rede Docker existe
+      command: docker network inspect "{{ java_network }}"
+      register: network_check
+      changed_when: false
+      failed_when: false
+
+    - name: Criar rede Docker se não existir
+      command: docker network create "{{ java_network }}"
+      when: network_check.rc != 0
+
+    - name: Verificar se o container crime-mysql existe
+      command: docker container inspect crime-mysql
+      register: mysql_check
+      changed_when: false
+      failed_when: false
+
+    - name: Iniciar banco de dados somente na primeira vez
+      command: docker compose up -d --build
+      args:
+        chdir: "{{ java_db_dir }}"
+      when: mysql_check.rc != 0
+
+
+    - name: Criar arquivo .env protegido para Java API
+      copy:
+        dest: "{{ java_app_dir }}/.env"
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+        content: |
+          AWS_ACCESS_KEY_ID={{ aws_access_key | trim }}
+          AWS_SECRET_ACCESS_KEY={{ aws_secret_key | trim }}
+          AWS_SESSION_TOKEN={{ aws_session_token | trim }}
+          AWS_REGION={{ aws_region }}
+          AWS_S3_BUCKET_RAW={{ aws_bucket_raw }}
+          AWS_S3_BUCKET_TRUSTED={{ aws_bucket_trusted }}
+          AWS_S3_BUCKET_CLIENT={{ aws_bucket_client }}
+      no_log: true
+
+    - name: Substituir credenciais AWS fixas no Docker Compose
+      replace:
+        path: "{{ java_app_dir }}/docker-compose.yml"
+        regexp: '(?m)^(\s*){{ item.key }}:.*$'
+        replace: '\g<1>{{ item.key }}: "${{ item.env }}"'
+        backup: false
+      loop:
+        - key: AWS_ACCESS_KEY_ID
+          env: AWS_ACCESS_KEY_ID
+        - key: AWS_SECRET_ACCESS_KEY
+          env: AWS_SECRET_ACCESS_KEY
+        - key: AWS_SESSION_TOKEN
+          env: AWS_SESSION_TOKEN
+        - key: AWS_REGION
+          env: AWS_REGION
+        - key: AWS_S3_BUCKET_RAW
+          env: AWS_S3_BUCKET_RAW
+        - key: AWS_S3_BUCKET_TRUSTED
+          env: AWS_S3_BUCKET_TRUSTED
+        - key: AWS_S3_BUCKET_CLIENT
+          env: AWS_S3_BUCKET_CLIENT
+
+    # - name: Compilar projeto Java com Maven Wrapper
+    #   become_user: ubuntu
+    #   command: ./mvnw clean package -DskipTests
+    #   args:
+    #     chdir: "{{ java_app_dir }}"
+
+    # - name: Criar diretório out/artifacts
+    #   file:
+    #     path: "{{ java_app_dir }}/out/artifacts"
+    #     state: directory
+    #     owner: ubuntu
+    #     group: ubuntu
+    #     mode: '0755'
+
+    # - name: Copiar JAR gerado para out/artifacts
+    #   shell: |
+    #     set -e
+    #     find target -maxdepth 1 -type f -name '*.jar' \
+    #       ! -name '*-sources.jar' \
+    #       ! -name '*-javadoc.jar' \
+    #       -exec cp -t out/artifacts/ {} +
+    #   args:
+    #     chdir: "{{ java_app_dir }}"
+    #   become_user: ubuntu
+
+
+    - name: Construir e iniciar Java API
+      command: docker compose up -d --build
+      args:
+        chdir: "{{ java_app_dir }}"
+
+    - name: Exibir containers em execução
+      command: docker ps
+      register: docker_ps
+      changed_when: false
+
+    - name: Mostrar containers
+      debug:
+        var: docker_ps.stdout
