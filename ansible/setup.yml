@@ -220,6 +220,14 @@
         chdir: "{{ java_db_dir }}"
       register: db_up
 
+    - name: Conferir estado do banco
+      command: docker compose ps -a
+      args:
+        chdir: "{{ java_db_dir }}"
+      register: db_status
+      changed_when: false
+
+
     - name: Criar arquivo .env protegido para Java API
       copy:
         dest: "{{ java_app_dir }}/.env"
