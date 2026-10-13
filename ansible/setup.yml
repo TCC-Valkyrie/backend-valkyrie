@@ -13,6 +13,7 @@
     aws_bucket_raw: "teste-bucket-tcc1"
     aws_bucket_trusted: "teste-bucket-tcc1"
     aws_bucket_client: "teste-bucket-tcc1"
+    aws_dir: "/home/ubuntu/.aws"
 
   tasks:
     - name: Parar o processo Main.py se estiver rodando
@@ -42,13 +43,13 @@
       file:
         path: /etc/apt/keyrings
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Adicionar chave GPG oficial do Docker
       get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
         dest: /etc/apt/keyrings/docker.asc
-        mode: '0644'
+        mode: "0644"
 
     - name: Adicionar repositório oficial do Docker
       apt_repository:
@@ -77,7 +78,7 @@
       file:
         path: "{{ app_dir }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Clonar ou atualizar repositório
       git:
@@ -86,22 +87,20 @@
         version: "{{ github_ref | default('main') }}"
         force: yes
 
-
     - name: Desinstalar pacotes listados no requirements.txt
       command: "pip uninstall -y -r {{ app_dir }}/python-API-modelo/requirements.txt"
 
-    - name: Instalar PySpark e dependências no virtualenv
+    - name: Instalar dependências python
       pip:
         requirements: "{{ app_dir }}/python-API-modelo/requirements.txt"
-        state: present        
-
+        state: present
 
     # - name: Apagar arquivo .env se existir
     #   ansible.builtin.file:
     #     path: "{{ app_dir }}/.env"
     #     state: absent
     #   ignore_errors: yes
-    
+
     # - name: Criar arquivo .env
     #   ansible.builtin.lineinfile:
     #     path: "{{ app_dir }}/.env"
@@ -130,7 +129,7 @@
     - name: Criar arquivo de credenciais AWS
       copy:
         dest: "{{ aws_dir }}/credentials"
-        mode: '0600'
+        mode: "0600"
         owner: ubuntu
         group: ubuntu
         content: |
@@ -138,7 +137,7 @@
           aws_access_key_id = {{ aws_access_key | trim }}
           aws_secret_access_key = {{ aws_secret_key | trim }}
           aws_session_token = {{ aws_session_token | trim }}
-     
+
     - name: Mostrar o conteúdo do arquivo de credenciais AWS
       command: cat /home/ubuntu/.aws/credentials
       register: credentials_content
@@ -148,14 +147,14 @@
       file:
         path: "/root/.aws"
         state: directory
-        mode: '0700'
+        mode: "0700"
         owner: root
         group: root
 
     - name: Criar arquivo de credenciais AWS no root
       copy:
         dest: "/root/.aws/credentials"
-        mode: '0600'
+        mode: "0600"
         owner: root
         group: root
         content: |
@@ -168,13 +167,11 @@
       command: cat /root/.aws/credentials
       register: credentials_content
       ignore_errors: yes
-          
 
     - name: Exibir conteúdo do arquivo de credenciais
       debug:
         var: credentials_content.stdout
 
-        
     - name: Executar Main.py dentro do virtualenv como ubuntu
       become_user: ubuntu
       shell: |
@@ -184,9 +181,6 @@
         AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
         AWS_SESSION_TOKEN: "{{ aws_session_token }}"
         AWS_DEFAULT_REGION: "{{ aws_region }}"
-        GOOGLE_APPLICATION_CREDENTIALS: "{{ gcp_credentials_file }}"
-        BASEDOSDADOS_BILLING_PROJECT_ID: "{{ gcp_project_id }}"
-
 
     # - name: Executar Main.py dentro do virtualenv
     #   shell: |
@@ -196,7 +190,6 @@
     #     AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
     #     AWS_SESSION_TOKEN: "{{  aws_session_token  }}"
     #     AWS_DEFAULT_REGION: "{{ aws_region }}"
-
 
     - name: Verificar se a rede Docker existe
       command: docker network inspect "{{ java_network }}"
@@ -220,13 +213,12 @@
         chdir: "{{ java_db_dir }}"
       when: mysql_check.rc != 0
 
-
     - name: Criar arquivo .env protegido para Java API
       copy:
         dest: "{{ java_app_dir }}/.env"
         owner: ubuntu
         group: ubuntu
-        mode: '0600'
+        mode: "0600"
         content: |
           AWS_ACCESS_KEY_ID={{ aws_access_key | trim }}
           AWS_SECRET_ACCESS_KEY={{ aws_secret_key | trim }}
@@ -283,7 +275,6 @@
     #   args:
     #     chdir: "{{ java_app_dir }}"
     #   become_user: ubuntu
-
 
     - name: Construir e iniciar Java API
       command: docker compose up -d --build
