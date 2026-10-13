@@ -18,7 +18,7 @@
   tasks:
     - name: Parar o processo Main.py se estiver rodando
       shell: |
-        pkill -f "{{ app_dir }}/Main.py" || true
+        pkill -f "{{ app_dir }}/python-API-modelo/API_modelo.py" || true
       ignore_errors: yes
 
     - name: Atualizar cache do apt
@@ -182,7 +182,7 @@
     - name: Executar Main.py dentro do virtualenv como ubuntu
       become_user: ubuntu
       shell: |
-        nohup {{ app_dir }}/venv/bin/python {{ app_dir }}/python-API-mdoelo/API_modelo.py > /dev/null 2>&1 &
+        nohup {{ app_dir }}/venv/bin/python {{ app_dir }}/python-API-modelo/API_modelo.py > /dev/null 2>&1 &
       environment:
         AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
         AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
