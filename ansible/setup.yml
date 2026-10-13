@@ -182,7 +182,7 @@
     - name: Executar Main.py dentro do virtualenv como ubuntu
       become_user: ubuntu
       shell: |
-        nohup {{ app_dir }}/venv/bin/python {{ app_dir }}/python-API-modelo/API_modelo.py > /dev/null 2>&1 &
+        nohup {{ app_dir }}/venv/bin/uvicorn API_modelo:app --app-dir {{ app_dir }}/python-API-modelo --host 0.0.0.0 --port 8000 > /dev/null 2>&1 &
       environment:
         AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
         AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
