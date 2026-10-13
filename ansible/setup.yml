@@ -92,11 +92,15 @@
     - name: Desinstalar pacotes listados no requirements.txt
       command: "{{ app_dir }}/venv/bin/pip uninstall -y -r {{ app_dir }}/python-API-modelo/requirements.txt"
 
-    - name: Instalar dependências python
-      pip:
+    - name: Instalar dependências Python
+      ansible.builtin.pip:
         requirements: "{{ app_dir }}/python-API-modelo/requirements.txt"
         virtualenv: "{{ app_dir }}/venv"
         state: present
+        extra_args: "--no-cache-dir"
+      environment:
+        TMPDIR: /var/tmp
+        PIP_NO_CACHE_DIR: "1" 
 
     # - name: Apagar arquivo .env se existir
     #   ansible.builtin.file:
