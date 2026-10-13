@@ -125,13 +125,13 @@
     #     - "BUCKET_NAME_CLIENT=bkt-wattson-client-285143259382"
     #     - "DEV_MODE=0"
 
-    # - name: Criar diretório ~/.aws
-    #   file:
-    #     path: "{{ aws_dir }}"
-    #     state: directory
-    #     mode: '0700'
-    #     owner: ubuntu
-    #     group: ubuntu
+    - name: Criar diretório ~/.aws
+      file:
+        path: "{{ aws_dir }}"
+        state: directory
+        mode: '0700'
+        owner: ubuntu
+        group: ubuntu
 
     - name: Criar arquivo de credenciais AWS
       copy:
