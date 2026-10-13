@@ -90,7 +90,7 @@
         creates: "{{ app_dir }}/venv/bin/activate"
 
     - name: Desinstalar pacotes listados no requirements.txt
-      command: "{{ app_dir }}/venv/bin/pip uninstall -y -r {{ app_dir }}/requirements.txt"
+      command: "{{ app_dir }}/venv/bin/pip uninstall -y -r {{ app_dir }}/python-API-modelo/requirements.txt"
 
     - name: Instalar dependências python
       pip:
