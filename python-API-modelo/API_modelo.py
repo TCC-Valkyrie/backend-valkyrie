@@ -4,8 +4,13 @@ from ultralytics import YOLO
 from PIL import Image
 from io import BytesIO
 import base64
+from pathlib import Path
 
-model = YOLO("best.pt")
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_PATH = BASE_DIR / "best.pt"
+
+model = YOLO(str(MODEL_PATH))
+
 
 app = FastAPI()
 
