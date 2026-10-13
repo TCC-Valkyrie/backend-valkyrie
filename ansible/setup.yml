@@ -85,12 +85,18 @@
         version: "{{ github_ref | default('main') }}"
         force: yes
 
+    - name: Criar virtualenv
+      command: python3 -m venv {{ app_dir }}/venv
+      args:
+        creates: "{{ app_dir }}/venv/bin/activate"
+
     - name: Desinstalar pacotes listados no requirements.txt
-      command: "pip uninstall -y -r {{ app_dir }}/python-API-modelo/requirements.txt"
+      command: "{{ app_dir }}/venv/bin/pip uninstall -y -r {{ app_dir }}/requirements.txt"
 
     - name: Instalar dependências python
       pip:
         requirements: "{{ app_dir }}/python-API-modelo/requirements.txt"
+        virtualenv: "{{ app_dir }}/venv"
         state: present
 
     # - name: Apagar arquivo .env se existir
@@ -173,7 +179,7 @@
     - name: Executar Main.py dentro do virtualenv como ubuntu
       become_user: ubuntu
       shell: |
-        nohup python {{ app_dir }}/python-API-mdoelo/API_modelo.py > /dev/null 2>&1 &
+        nohup {{ app_dir }}/venv/bin/python {{ app_dir }}/python-API-mdoelo/API_modelo.py > /dev/null 2>&1 &
       environment:
         AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
         AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
