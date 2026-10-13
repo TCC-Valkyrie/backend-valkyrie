@@ -214,11 +214,11 @@
       changed_when: false
       failed_when: false
 
-    - name: Iniciar banco de dados somente na primeira vez
-      command: docker compose up -d --build
+    - name: Subir banco de dados
+      command: docker compose up -d --build --wait --wait-timeout 120
       args:
         chdir: "{{ java_db_dir }}"
-      when: mysql_check.rc != 0
+      register: db_up
 
     - name: Criar arquivo .env protegido para Java API
       copy:
