@@ -6,17 +6,17 @@ services:
     environment:
       FFMPEG_PATH: ffmpeg
       AWS_REGION: us-east-1
-      AWS_S3_BUCKET_RAW: teste-bucket-tcc1
-      AWS_S3_BUCKET_TRUSTED: teste-bucket-tcc1
-      AWS_S3_BUCKET_CLIENT: teste-bucket-tcc1
+      AWS_S3_BUCKET_RAW: bkt-valkyrie-raw-455549248520-bucket-tcc1
+      AWS_S3_BUCKET_TRUSTED: bkt-valkyrie-trusted-455549248520-bucket-tcc1
+      AWS_S3_BUCKET_CLIENT: bkt-valkyrie-client-455549248520-bucket-tcc1
       SPRING_DATASOURCE_URL: jdbc:mysql://crime-mysql:3306/crime_db
       SPRING_DATASOURCE_USERNAME: crime_user
       SPRING_DATASOURCE_PASSWORD: crime_password
       MODELO_URL: http://localhost:8080/file/teste
       MODELO_MOCK: true
-      AWS_ACCESS_KEY_ID: ASIARHBDUCH7FFR7S3MW
-      AWS_SECRET_ACCESS_KEY: Rsyx8xJW2NZh9kh2LpZx1KqL7kXrhVwOceahe2gu
-      AWS_SESSION_TOKEN: IQoJb3JpZ2luX2VjEGgaCXVzLXdlc3QtMiJHMEUCIHxizcEu7gYc1gtRhu3JptdsGFwM0b68153dbA54/5VYAiEArKOqyPm/vpj2ixo7TWrfsuyJ9A9X278i/8P1MWdy4VIqtgIIMRABGgwwODM4MjY1Nzc5MTgiDIdGjWlPwRC2AJ1wCSqTAqGgYSOEB5mboMKHkuumC44zCsqvdkb2vY4ykwdmO9ZVJ3Eb1aeJjUkVE4OsKFxCql4yiUdGA7gMpCpXIiQhpChsP3LjlfQF/1eiMBfWJX0aSP53Cla3hxfyHBQg6XKINwvk3ITCQmWw3SSEmUb7l1MsVAES8PIvuMyis4iD6zSnvF/ANZgMIHBImwgrm6xNksW7L1ssbwf2KfKB5MEHNZ3QFS1UivdWYhrDSC7ykpem2qphq1txYgeNykbgTkH5t29Y4SCGN4AV6D0d5DBt1D5IJE+nDg/+eB3cQi15pnABZVxbqZjyt3aTPRHbJUD8X+pgX5Ql9U+pFydY+QyMeAxbRDHvAriFsxZaUBLFSJEX5mbnMOvhoNYGOp0BZfEj/pPoKM9b42upj+Khw54popBJmY0bzb5FnFTBPHxDL/MQ+Qcj4Ct4zeSajtK4WB/IT30JxOFvzgwgG2vSFA/P3428rVqaaRhcyyWEtHIVVtiwPo11ULVF32tdyEn+03rElYNgEsbSzkGxI/LdJhH0feh+CmBhtQUQb00FKXEeENM/U8QlcVrWgJF+awCuIeiruUH5Vs6+6Nxt3w==
+      AWS_ACCESS_KEY_ID: ASIAWUEGZ4QECEGO4X7I
+      AWS_SECRET_ACCESS_KEY: ejs7KOzXQa22uxbG0xAUmEpf9jq8KTzNQ9ca9LkA
+      AWS_SESSION_TOKEN: IQoJb3JpZ2luX2VjECYaCXVzLXdlc3QtMiJHMEUCIQD/PXi2SmBQQrwrqCXAyAJnDx1mkY/mynzvgJnRs4+cUQIgJicWyLQJ15Fqhd9KEg175h7RmdjB57URBfNnYBZo+9QqvQII7///////////ARAAGgw0NTU1NDkyNDg1MjAiDIvyHuqar+WhoyH//CqRAiotuxLfzWYfh4fEXPNz1yOuuYykJd0ykGx1D9HJcwJ/bIAK/FyTdcfcmnd1THUIzAmzprlA5Aa0ZVu4NkDudhZXPo7TA4Iydobibd2d2e/GtCmKpdGKg2S8OP3z/glY94yWy+lIehtEKaIrV8258An6M9Ve5R0umA+QZ2pr7nBMR5SeVQpEbnLkVC06QSk2nSsXuqemxMyR7e0+wxfk1+vltqkg8nfVGC8a3DfRk1ui2D1tHCDiaRu4lD7N+zrNrfei1LwSqWgoBhdIofPXf5CDnku6VLjJ7YYcshsT/aoWRD/6VGNLkie9seX8KmaibgONV2iRZ2azH8h6h2dxZNG3KgBKKGZigyVPe08PRU3UZjCCsMrWBjqdAdbt9RncN9X4gx7m0a9cW3iRbvOkA5EwNlnUr7PKz0O4sl0/68YS0Q/76ne0nuIvQxEd4KaCjdK2xCmxyhKzjPvLSde23OsoXe7xDi/jYR2kYHopW1UjeiUMSHrXgbLMbcVrKwrK3PLHchHIMKfsNoECuit8kmCtT23Dx2exdwtqfsAtMn4KmzaXyilCTqE09GcyVcypmxjVTlqQZ+I=
     networks:
       - crime-network
 
