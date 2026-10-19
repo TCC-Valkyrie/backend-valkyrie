@@ -49,8 +49,8 @@ public class FileService {
     }
 
     public ResultadoCrime ChamaModelo(MultipartFile imagem) throws Exception {
-        String nomeArquivoClient = "";
         System.out.println("Entrou em ChamaModelo()");
+        String nomeArquivoClient = "";
 
         String contentType = imagem.getContentType();
         nomeArquivoClient = s3Service.uploadSS3(imagem, BucketType.RAW);
