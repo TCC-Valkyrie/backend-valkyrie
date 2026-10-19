@@ -6,9 +6,9 @@ services:
     environment:
       FFMPEG_PATH: ffmpeg
       AWS_REGION: us-east-1
-      AWS_S3_BUCKET_RAW: bkt-valkyrie-raw-455549248520-bucket-tcc1
-      AWS_S3_BUCKET_TRUSTED: bkt-valkyrie-trusted-455549248520-bucket-tcc1
-      AWS_S3_BUCKET_CLIENT: bkt-valkyrie-client-455549248520-bucket-tcc1
+      AWS_S3_BUCKET_RAW: bkt-valkyrie-raw-455549248520
+      AWS_S3_BUCKET_TRUSTED: bkt-valkyrie-trusted-455549248520
+      AWS_S3_BUCKET_CLIENT: bkt-valkyrie-client-455549248520
       SPRING_DATASOURCE_URL: jdbc:mysql://crime-mysql:3306/crime_db
       SPRING_DATASOURCE_USERNAME: crime_user
       SPRING_DATASOURCE_PASSWORD: crime_password
