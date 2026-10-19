@@ -72,7 +72,7 @@ public class FileService {
         if (nomeArquivoClient.equalsIgnoreCase(""))
             throw new Exception("Erro ao subir arquivo S3");
 
-        // Boolean isCrime = modeloConnector.ChamaModelo(imagem, nomeArquivoClient);
-        return this.inserir(true, 100.00);
+        Boolean isCrime = modeloConnector.ChamaModelo(imagem, nomeArquivoClient);
+        return this.inserir(isCrime, 100.00);
     }
 }
