@@ -20,7 +20,8 @@ public class FileService {
     private final S3Service s3Service;
     private final CrimeVideoService crimeVideoService;
 
-    public FileService(ResultadoCrimeRepository repository, ModeloConnector modeloConnector, S3Service s3Service, CrimeVideoService crimeVideoService) {
+    public FileService(ResultadoCrimeRepository repository, ModeloConnector modeloConnector, S3Service s3Service,
+            CrimeVideoService crimeVideoService) {
         this.repository = repository;
         this.modeloConnector = modeloConnector;
         this.s3Service = s3Service;
@@ -29,8 +30,7 @@ public class FileService {
 
     private ResultadoCrime inserir(
             Boolean resultado,
-            Double accuracy
-    ) {
+            Double accuracy) {
         ResultadoCrime crime = new ResultadoCrime();
 
         crime.setResultado(resultado);
@@ -59,7 +59,7 @@ public class FileService {
             if (contentType != null && contentType.startsWith("video/")) {
                 s3Service.uploadSS3(imagem, BucketType.TRUSTED);
                 nomeArquivoClient = crimeVideoService.processVideo(imagem);
-            } else if (contentType != null && contentType.startsWith("image/")){
+            } else if (contentType != null && contentType.startsWith("image/")) {
                 s3Service.uploadSS3(imagem, BucketType.TRUSTED);
                 nomeArquivoClient = crimeVideoService.processImage(imagem);
             } else {
@@ -69,10 +69,10 @@ public class FileService {
             throw new Exception("Erro no bucket");
         }
 
-
-        if (nomeArquivoClient.equalsIgnoreCase("")) throw new Exception("Erro ao subir arquivo S3");
+        if (nomeArquivoClient.equalsIgnoreCase(""))
+            throw new Exception("Erro ao subir arquivo S3");
 
         Boolean isCrime = modeloConnector.ChamaModelo(imagem, nomeArquivoClient);
-        return this.inserir(isCrime, 100.00);
+        return this.inserir(true, 100.00);
     }
 }
