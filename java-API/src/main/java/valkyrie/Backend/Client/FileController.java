@@ -36,6 +36,7 @@ public class FileController {
             ResultadoCrime retorno = fileService.ChamaModelo(imagem);
             return ResponseEntity.ok(retorno);
         } catch (Exception e) {
+            System.out.println("Erro ao processar imagem: " + e);
             return ResponseEntity.internalServerError().build();
         }
     }
