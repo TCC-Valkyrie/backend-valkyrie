@@ -33,8 +33,8 @@ public class FileController {
             System.out.println("Tipo: " + imagem.getContentType());
             System.out.println("Tamanho: " + imagem.getSize());
 
-            ResultadoCrime retorno = fileService.ChamaModelo(imagem);
-            return ResponseEntity.ok(retorno);
+            // ResultadoCrime retorno = fileService.ChamaModelo(imagem);
+            return ResponseEntity.ok(null);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
@@ -70,6 +70,6 @@ public class FileController {
 
     @PostMapping("/teste")
     public ResponseEntity<Boolean> Teste() {
-       return ResponseEntity.ok(true);
+        return ResponseEntity.ok(true);
     }
 }
