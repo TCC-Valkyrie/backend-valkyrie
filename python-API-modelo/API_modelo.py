@@ -1,16 +1,38 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from ultralytics import YOLO
-from PIL import Image
-from io import BytesIO
 import base64
+import os
+from io import BytesIO
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
-MODEL_PATH = BASE_DIR / "best.pt"
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
+from fastapi import FastAPI, HTTPException
+from PIL import Image
+from pydantic import BaseModel
+from ultralytics import YOLO
 
-model = YOLO(str(MODEL_PATH))
+BUCKET_NAME = "bkt-valkyrie-modelos-455549248520"
+MODEL_KEY = "best.pt"
+LOCAL_MODEL_PATH = "/tmp/best.pt"
+CONF_THRESHOLD = 0.25
 
+"""Baixa o modelo do S3 para o disco local (usa a IAM Role da EC2)."""
+
+path = ""
+
+if LOCAL_MODEL_PATH.exists():
+    path = LOCAL_MODEL_PATH
+
+s3 = boto3.client("s3")
+try:
+    s3.download_file(BUCKET_NAME, MODEL_KEY, str(LOCAL_MODEL_PATH))
+except (BotoCoreError, ClientError) as e:
+    raise RuntimeError(f"Falha ao baixar modelo do S3: {e}")
+path = LOCAL_MODEL_PATH
+
+# BASE_DIR = Path(__file__).resolve().parent
+# MODEL_PATH = path / "best.pt"
+
+model = YOLO(str(path))
 
 app = FastAPI()
 
