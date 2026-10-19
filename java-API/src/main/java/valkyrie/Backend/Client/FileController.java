@@ -29,9 +29,9 @@ public class FileController {
             if (imagem.isEmpty()) {
                 return ResponseEntity.badRequest().build();
             }
-            // System.out.println("Nome: " + imagem.getOriginalFilename());
-            // System.out.println("Tipo: " + imagem.getContentType());
-            // System.out.println("Tamanho: " + imagem.getSize());
+            System.out.println("Nome: " + imagem.getOriginalFilename());
+            System.out.println("Tipo: " + imagem.getContentType());
+            System.out.println("Tamanho: " + imagem.getSize());
 
             ResultadoCrime retorno = fileService.ChamaModelo(imagem);
             return ResponseEntity.ok(retorno);
