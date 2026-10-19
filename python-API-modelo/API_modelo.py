@@ -1,7 +1,5 @@
 import base64
-import os
 from io import BytesIO
-from pathlib import Path
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
@@ -14,8 +12,6 @@ BUCKET_NAME = "bkt-valkyrie-modelos-455549248520"
 MODEL_KEY = "best.pt"
 LOCAL_MODEL_PATH = "/tmp/best.pt"
 CONF_THRESHOLD = 0.25
-
-"""Baixa o modelo do S3 para o disco local (usa a IAM Role da EC2)."""
 
 path = ""
 

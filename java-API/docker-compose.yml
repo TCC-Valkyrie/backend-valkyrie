@@ -12,7 +12,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://crime-mysql:3306/crime_db
       SPRING_DATASOURCE_USERNAME: crime_user
       SPRING_DATASOURCE_PASSWORD: crime_password
-      MODELO_URL: http://localhost:8080/file/teste
+      MODELO_URL: http://localhost:8000/predict
       MODELO_MOCK: false
       AWS_ACCESS_KEY_ID: ASIAWUEGZ4QEDN7V37HN
       AWS_SECRET_ACCESS_KEY: v233Y3T45oycxEISShnTD/33pjQs+3sLxe/ZiaPH
