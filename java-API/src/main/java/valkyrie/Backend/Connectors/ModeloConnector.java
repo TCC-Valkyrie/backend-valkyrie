@@ -61,7 +61,7 @@ public class ModeloConnector {
         return restClient.post()
                 .uri(URLModelo)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(builder)
+                .body(builder.build())
                 .retrieve()
                 .body(ModeloResponse.class);
     }
