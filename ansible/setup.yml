@@ -125,7 +125,7 @@
     #     - "BUCKET_NAME_CLIENT=bkt-wattson-client-285143259382"
     #     - "DEV_MODE=0"
 
-    - name: Criar diretório ~/.aws
+        - name: Criar diretório ~/.aws
       file:
         path: "{{ aws_dir }}"
         state: directory
@@ -178,6 +178,7 @@
     - name: Exibir conteúdo do arquivo de credenciais
       debug:
         var: credentials_content.stdout
+
 
     - name: Executar Main.py dentro do virtualenv como ubuntu
       become_user: ubuntu

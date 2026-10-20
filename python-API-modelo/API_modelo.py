@@ -1,5 +1,6 @@
 import base64
 from io import BytesIO
+from pathlib import Path
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
@@ -10,7 +11,7 @@ from ultralytics import YOLO
 
 BUCKET_NAME = "bkt-valkyrie-modelos-455549248523"
 MODEL_KEY = "best.pt"
-LOCAL_MODEL_PATH = "/tmp/best.pt"
+LOCAL_MODEL_PATH = Path("/tmp/best.pt")
 CONF_THRESHOLD = 0.25
 
 path = ""
