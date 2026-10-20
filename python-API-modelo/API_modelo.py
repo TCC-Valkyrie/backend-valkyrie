@@ -4,7 +4,7 @@ from pathlib import Path
 
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form
 from PIL import Image
 from pydantic import BaseModel
 from ultralytics import YOLO
@@ -33,24 +33,24 @@ model = YOLO(str(path))
 
 app = FastAPI()
 
-class ImageRequest(BaseModel):
-    image_base64: str
-
 @app.post("/predict/")
-async def predict_crime(request: ImageRequest):
+async def predict_crime(
+    imagem: UploadFile = File(...),
+    nomeArquivo: str = Form(...)
+):
     try:
-        b64_data = request.image_base64
-        if "," in b64_data:
-            b64_data = b64_data.split(",")[1]
-        
-        image_bytes = base64.b64decode(b64_data)
-        image = Image.open(BytesIO(image_bytes))
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid Base64 string")
+        image_bytes = await imagem.read()
+        image = Image.open(BytesIO(image_bytes)).convert("RGB")
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Arquivo de imagem inválido"
+        )
 
     results = model(image)
 
     detected_objects = []
+
     for result in results:
         for box in result.boxes:
             detected_objects.append({
@@ -60,10 +60,9 @@ async def predict_crime(request: ImageRequest):
             })
 
     return {
-        "predictions": detected_objects,
-        "original_image_base64": request.image_base64
+        "nomeArquivo": nomeArquivo,
+        "predictions": detected_objects
     }
-
 
 @app.get("/health")
 def health():
