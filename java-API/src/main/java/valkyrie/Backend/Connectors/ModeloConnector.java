@@ -1,5 +1,11 @@
 package valkyrie.Backend.Connectors;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
@@ -43,28 +49,33 @@ public class ModeloConnector {
             return mock;
         }
 
-        ByteArrayResource arquivoResource =
-                new ByteArrayResource(imagem.getBytes()) {
-                    @Override
-                    public String getFilename() {
-                        return imagem.getOriginalFilename() != null
-                                ? imagem.getOriginalFilename()
-                                : "imagem.png";
-                    }
-                };
+        ByteArrayResource arquivoResource = new ByteArrayResource(imagem.getBytes()) {
+            @Override
+            public String getFilename() {
+                return imagem.getOriginalFilename() != null
+                        ? imagem.getOriginalFilename()
+                        : "imagem.png";
+            }
+        };
 
         MultipartBodyBuilder multipartBuilder = new MultipartBodyBuilder();
 
+        // Campo imagem=@arquivo
         multipartBuilder.part("imagem", arquivoResource)
                 .filename(arquivoResource.getFilename())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM);
+                .contentType(
+                        imagem.getContentType() != null
+                                ? MediaType.parseMediaType(imagem.getContentType())
+                                : MediaType.APPLICATION_OCTET_STREAM
+                );
 
+        // Campo nomeArquivo=teste.png
         multipartBuilder.part("nomeArquivo", nomeArquivo);
 
         MultiValueMap<String, HttpEntity<?>> body = multipartBuilder.build();
 
         return restClient.post()
-                .uri(URLModelo)
+                .uri(this.URLModelo)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)
                 .retrieve()
