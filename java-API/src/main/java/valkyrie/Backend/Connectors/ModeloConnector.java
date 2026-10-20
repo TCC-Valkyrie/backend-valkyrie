@@ -1,11 +1,17 @@
 package valkyrie.Backend.Connectors;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
+import valkyrie.Backend.Models.ModeloResponse;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Component
@@ -23,25 +29,45 @@ public class ModeloConnector {
         this.restClient = builder.build();
     }
 
-    public Boolean ChamaModelo(MultipartFile imagem, String nomeArquivo) {
-        Map<String, Object> body = Map.of(
-                "imagem", imagem,
-                "nomeArquivo", nomeArquivo
+    public ModeloResponse ChamaModelo(
+            MultipartFile imagem,
+            String nomeArquivo
+    ) throws IOException {
+
+        if (Boolean.parseBoolean(mockModelo)) {
+            ModeloResponse mock = new ModeloResponse();
+            mock.setNomeArquivo(nomeArquivo);
+            mock.setPredictions(java.util.Collections.emptyList());
+            return mock;
+        }
+
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+
+        builder.part(
+                "imagem",
+                new ByteArrayResource(imagem.getBytes()) {
+                    @Override
+                    public String getFilename() {
+                        return imagem.getOriginalFilename() != null
+                                ? imagem.getOriginalFilename()
+                                : nomeArquivo;
+                    }
+                }
+        ).contentType(
+                imagem.getContentType() != null
+                        ? MediaType.parseMediaType(imagem.getContentType())
+                        : MediaType.APPLICATION_OCTET_STREAM
         );
 
-        if (mockModelo.equalsIgnoreCase("true")) {
-            return restClient
-                    .method(HttpMethod.POST)
-                    .uri(URLModelo)
-                    .retrieve()
-                    .body(Boolean.class);
-        } else {
-            return restClient
-                    .method(HttpMethod.POST)
-                    .uri(URLModelo)
-                    .body(body)
-                    .retrieve()
-                    .body(Boolean.class);
-        }
+        builder.part("nomeArquivo", nomeArquivo);
+
+        MultiValueMap<String, HttpEntity<?>> parts = builder.build();
+
+        return restClient.post()
+                .uri(URLModelo)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(parts)
+                .retrieve()
+                .body(ModeloResponse.class);
     }
 }

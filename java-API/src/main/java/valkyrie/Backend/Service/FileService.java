@@ -6,11 +6,14 @@ import valkyrie.Backend.Connectors.ModeloConnector;
 import valkyrie.Backend.Enum.BucketType;
 import valkyrie.Backend.Exceptions.ArquivoInvalidoException;
 import valkyrie.Backend.Models.Entities.ResultadoCrime;
+import valkyrie.Backend.Models.ModeloResponse;
 import valkyrie.Backend.Repository.ResultadoCrimeRepository;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.stream.Collectors;
 
 @Service
 public class FileService {
@@ -29,11 +32,31 @@ public class FileService {
     }
 
     private ResultadoCrime inserir(
-            Boolean resultado,
-            Double accuracy) {
+            ModeloResponse resultado) {
         ResultadoCrime crime = new ResultadoCrime();
 
-        crime.setResultado(resultado);
+        var isCrime =  resultado.getPredictions().stream()
+                .anyMatch(prediction ->
+                        prediction.getConfidence() >= 0.70
+                                && java.util.Set.of(
+                                "arma",
+                                "assalto",
+                                "furto"
+                        ).contains(
+                                prediction.getClasse().toLowerCase(
+                                        java.util.Locale.ROOT
+                                )
+                        )
+                );
+
+        OptionalDouble optAccuracy = resultado.getPredictions().stream().mapToDouble(value -> value.getConfidence()).average();
+
+        Double accuracy = 0.0;
+
+        if (optAccuracy.isPresent())
+            accuracy = optAccuracy.getAsDouble();
+
+        crime.setResultado(isCrime);
         crime.setAccuracy(accuracy);
         crime.setDataHora(LocalDateTime.now());
 
@@ -73,7 +96,8 @@ public class FileService {
         if (nomeArquivoClient.equalsIgnoreCase(""))
             throw new Exception("Erro ao subir arquivo S3");
 
-        Boolean isCrime = modeloConnector.ChamaModelo(imagem, nomeArquivoClient);
-        return this.inserir(isCrime, 100.00);
+        ModeloResponse isCrime = modeloConnector.ChamaModelo(imagem, nomeArquivoClient);
+
+        return this.inserir(isCrime);
     }
 }
