@@ -58,28 +58,18 @@ public class ModeloConnector {
             }
         };
 
-        HttpHeaders headersImagem = new HttpHeaders();
-        headersImagem.setContentType(
-                imagem.getContentType() != null
-                        ? MediaType.parseMediaType(imagem.getContentType())
-                        : MediaType.APPLICATION_OCTET_STREAM
-        );
-        headersImagem.setContentDispositionFormData(
-                "imagem",
-                arquivoResource.getFilename()
-        );
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
 
-        HttpEntity<ByteArrayResource> parteImagem =
-                new HttpEntity<>(arquivoResource, headersImagem);
+        builder.part("imagem", arquivoResource)
+                .filename(arquivoResource.getFilename())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM);
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("imagem", parteImagem);
-        body.add("nomeArquivo", nomeArquivo);
+        builder.part("nomeArquivo", nomeArquivo)
+                .contentType(MediaType.TEXT_PLAIN);
 
         return restClient.post()
                 .uri(URLModelo)
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(body)
+                .body(builder.build())
                 .retrieve()
                 .body(ModeloResponse.class);
     }
