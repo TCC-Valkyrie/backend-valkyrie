@@ -43,25 +43,30 @@ public class ModeloConnector {
             return mock;
         }
 
-        ByteArrayResource arquivoResource = new ByteArrayResource(imagem.getBytes()) {
-            @Override
-            public String getFilename() {
-                return imagem.getOriginalFilename(); // Crucial para a API destino saber o nome/extensão
-            }
-        };
+        ByteArrayResource arquivoResource =
+                new ByteArrayResource(imagem.getBytes()) {
+                    @Override
+                    public String getFilename() {
+                        return imagem.getOriginalFilename() != null
+                                ? imagem.getOriginalFilename()
+                                : "imagem.png";
+                    }
+                };
 
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        MultipartBodyBuilder multipartBuilder = new MultipartBodyBuilder();
 
+        multipartBuilder.part("imagem", arquivoResource)
+                .filename(arquivoResource.getFilename())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM);
 
+        multipartBuilder.part("nomeArquivo", nomeArquivo);
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        builder.part("imagem", arquivoResource);
-        builder.part("nomeArquivo", nomeArquivo);
+        MultiValueMap<String, HttpEntity<?>> body = multipartBuilder.build();
 
         return restClient.post()
                 .uri(URLModelo)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(builder.build())
+                .body(body)
                 .retrieve()
                 .body(ModeloResponse.class);
     }
