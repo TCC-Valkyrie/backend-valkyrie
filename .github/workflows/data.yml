@@ -25,8 +25,8 @@ jobs:
     - name: Adiciona chave SSH para EC2
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/chave_tcc.pem
-        chmod 400 ~/.ssh/chave_tcc.pem
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/${{ secrets.NOME_PEM }}.pem
+        chmod 400 ~/.ssh/${{ secrets.NOME_PEM }}.pem
 
     - name: Debug EC2_HOST value 
       run: echo "EC2_HOST is ${{ secrets.EC2_HOST }}"
