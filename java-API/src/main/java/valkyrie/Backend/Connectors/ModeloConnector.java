@@ -16,6 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import valkyrie.Backend.Models.ModeloResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
@@ -75,12 +76,19 @@ public class ModeloConnector {
         multipart.part("nomeArquivo", nomeArquivo)
                 .contentType(MediaType.TEXT_PLAIN);
 
-        return webClient.post()
-                .uri(URLModelo)
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .bodyValue(multipart.build())
-                .retrieve()
-                .bodyToMono(ModeloResponse.class)
-                .block();
+        try {
+            return webClient.post()
+                    .uri(URLModelo)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .bodyValue(multipart.build())
+                    .retrieve()
+                    .bodyToMono(ModeloResponse.class)
+                    .block();
+
+        } catch (WebClientResponseException e) {
+            System.err.println("Status do modelo: " + e.getStatusCode());
+            System.err.println("Resposta do modelo: " + e.getResponseBodyAsString());
+            throw e;
+        }
     }
 }
