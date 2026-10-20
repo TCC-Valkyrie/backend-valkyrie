@@ -15,17 +15,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 import valkyrie.Backend.Models.ModeloResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.IOException;
+import java.util.Collections;
 
 
 @Component
 public class ModeloConnector {
 
-    private final RestClient restClient;
+    private final WebClient webClient;
 
     @Value("${modelo.url}")
     private String URLModelo;
@@ -33,8 +35,8 @@ public class ModeloConnector {
     private String mockModelo;
 
 
-    public ModeloConnector(RestClient.Builder builder) {
-        this.restClient = builder.build();
+    public ModeloConnector(WebClient.Builder builder) {
+        this.webClient = builder.build();
     }
 
     public ModeloResponse ChamaModelo(
@@ -45,32 +47,40 @@ public class ModeloConnector {
         if (Boolean.parseBoolean(mockModelo)) {
             ModeloResponse mock = new ModeloResponse();
             mock.setNomeArquivo(nomeArquivo);
-            mock.setPredictions(java.util.Collections.emptyList());
+            mock.setPredictions(Collections.emptyList());
             return mock;
         }
 
-        ByteArrayResource arquivoResource = new ByteArrayResource(imagem.getBytes()) {
-            @Override
-            public String getFilename() {
-                return imagem.getOriginalFilename() != null
-                        ? imagem.getOriginalFilename()
-                        : "imagem.png";
-            }
-        };
+        ByteArrayResource resource =
+                new ByteArrayResource(imagem.getBytes()) {
+                    @Override
+                    public String getFilename() {
+                        return imagem.getOriginalFilename() != null
+                                ? imagem.getOriginalFilename()
+                                : "imagem.png";
+                    }
+                };
 
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        MultipartBodyBuilder multipart = new MultipartBodyBuilder();
 
-        builder.part("imagem", arquivoResource)
-                .filename(arquivoResource.getFilename())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM);
+        multipart.part("imagem", resource)
+                .filename(resource.getFilename())
+                .contentType(
+                        imagem.getContentType() != null
+                                ? MediaType.parseMediaType(
+                                imagem.getContentType())
+                                : MediaType.APPLICATION_OCTET_STREAM
+                );
 
-        builder.part("nomeArquivo", nomeArquivo)
+        multipart.part("nomeArquivo", nomeArquivo)
                 .contentType(MediaType.TEXT_PLAIN);
 
-        return restClient.post()
+        return webClient.post()
                 .uri(URLModelo)
-                .body(builder.build())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .bodyValue(multipart.build())
                 .retrieve()
-                .body(ModeloResponse.class);
+                .bodyToMono(ModeloResponse.class)
+                .block();
     }
 }
