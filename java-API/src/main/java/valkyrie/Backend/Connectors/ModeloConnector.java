@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
@@ -42,32 +43,25 @@ public class ModeloConnector {
             return mock;
         }
 
-        ByteArrayResource arquivo = new ByteArrayResource(imagem.getBytes()) {
+        ByteArrayResource arquivoResource = new ByteArrayResource(imagem.getBytes()) {
             @Override
             public String getFilename() {
-                return imagem.getOriginalFilename() != null
-                        ? imagem.getOriginalFilename()
-                        : nomeArquivo;
+                return imagem.getOriginalFilename(); // Crucial para a API destino saber o nome/extensão
             }
         };
 
-        HttpHeaders headersImagem = new HttpHeaders();
-        headersImagem.setContentType(
-                MediaType.parseMediaType(
-                        imagem.getContentType() != null
-                                ? imagem.getContentType()
-                                : "application/octet-stream"
-                )
-        );
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+
+
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("imagem", arquivo);
-        body.add("nomeArquivo", nomeArquivo);
+        builder.part("imagem", arquivoResource);
+        builder.part("nomeArquivo", nomeArquivo);
 
         return restClient.post()
                 .uri(URLModelo)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(body)
+                .body(builder)
                 .retrieve()
                 .body(ModeloResponse.class);
     }
