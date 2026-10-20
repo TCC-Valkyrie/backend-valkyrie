@@ -125,7 +125,7 @@
     #     - "BUCKET_NAME_CLIENT=bkt-wattson-client-285143259382"
     #     - "DEV_MODE=0"
 
-        - name: Criar diretório ~/.aws
+    - name: Criar diretório ~/.aws
       file:
         path: "{{ aws_dir }}"
         state: directory
