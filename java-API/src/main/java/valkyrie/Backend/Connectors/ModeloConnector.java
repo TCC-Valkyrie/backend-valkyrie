@@ -6,21 +6,14 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 import valkyrie.Backend.Models.ModeloResponse;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.IOException;
 
-
-import java.io.IOException;
-import java.util.Map;
 
 @Component
 public class ModeloConnector {
@@ -42,8 +35,6 @@ public class ModeloConnector {
             String nomeArquivo
     ) throws IOException {
 
-        System.out.println("Entrou em ChamaModelo()");
-
         if (Boolean.parseBoolean(mockModelo)) {
             ModeloResponse mock = new ModeloResponse();
             mock.setNomeArquivo(nomeArquivo);
@@ -51,9 +42,7 @@ public class ModeloConnector {
             return mock;
         }
 
-        MultipartBodyBuilder multipartBuilder = new MultipartBodyBuilder();
-
-        ByteArrayResource arquivoResource = new ByteArrayResource(imagem.getBytes()) {
+        ByteArrayResource arquivo = new ByteArrayResource(imagem.getBytes()) {
             @Override
             public String getFilename() {
                 return imagem.getOriginalFilename() != null
@@ -62,18 +51,23 @@ public class ModeloConnector {
             }
         };
 
-        multipartBuilder.part("imagem", arquivoResource)
-                .contentType(imagem.getContentType() != null
-                        ? MediaType.parseMediaType(imagem.getContentType())
-                        : MediaType.APPLICATION_OCTET_STREAM);
+        HttpHeaders headersImagem = new HttpHeaders();
+        headersImagem.setContentType(
+                MediaType.parseMediaType(
+                        imagem.getContentType() != null
+                                ? imagem.getContentType()
+                                : "application/octet-stream"
+                )
+        );
 
-        multipartBuilder.part("nomeArquivo", nomeArquivo)
-                .contentType(MediaType.TEXT_PLAIN);
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("imagem", new HttpEntity<>(arquivo, headersImagem));
+        body.add("nomeArquivo", nomeArquivo);
 
         return restClient.post()
                 .uri(URLModelo)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(multipartBuilder.build())
+                .body(body)
                 .retrieve()
                 .body(ModeloResponse.class);
     }
