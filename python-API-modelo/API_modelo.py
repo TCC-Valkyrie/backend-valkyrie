@@ -8,7 +8,7 @@ from PIL import Image
 from pydantic import BaseModel
 from ultralytics import YOLO
 
-BUCKET_NAME = "bkt-valkyrie-modelos-455549248520"
+BUCKET_NAME = "bkt-valkyrie-modelos-455549248523"
 MODEL_KEY = "best.pt"
 LOCAL_MODEL_PATH = "/tmp/best.pt"
 CONF_THRESHOLD = 0.25
