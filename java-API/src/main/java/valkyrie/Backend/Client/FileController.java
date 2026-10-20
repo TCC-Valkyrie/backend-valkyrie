@@ -24,7 +24,7 @@ public class FileController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResultadoCrime> upload(@RequestParam("imagem") MultipartFile imagem) {
+    public ResponseEntity<?> upload(@RequestParam("imagem") MultipartFile imagem) {
         try {
             if (imagem.isEmpty()) {
                 return ResponseEntity.badRequest().build();
@@ -37,12 +37,12 @@ public class FileController {
             return ResponseEntity.ok(retorno);
         } catch (Exception e) {
             System.out.println("Erro ao processar imagem: " + e);
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e);
         }
     }
 
     @GetMapping("/by-month")
-    public ResponseEntity<List<Object[]>> ConsultaQuantidadeCrimesMes() {
+    public ResponseEntity<?> ConsultaQuantidadeCrimesMes() {
         try {
             List<Object[]> retorno;
             retorno = fileService.quantidadeCrimesPorMes();
@@ -51,12 +51,12 @@ public class FileController {
             }
             return ResponseEntity.ok(retorno);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e);
         }
     }
 
     @GetMapping()
-    public ResponseEntity<List<ResultadoCrime>> ConsultaTodosCrimes() {
+    public ResponseEntity<?> ConsultaTodosCrimes() {
         try {
             List<ResultadoCrime> retorno;
             retorno = fileService.buscarTodos();
@@ -65,7 +65,7 @@ public class FileController {
             }
             return ResponseEntity.ok(retorno);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(e);
         }
     }
 
