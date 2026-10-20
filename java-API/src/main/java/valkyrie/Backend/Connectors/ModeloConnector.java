@@ -61,7 +61,7 @@ public class ModeloConnector {
         );
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("imagem", new HttpEntity<>(arquivo, headersImagem));
+        body.add("imagem", arquivo);
         body.add("nomeArquivo", nomeArquivo);
 
         return restClient.post()
