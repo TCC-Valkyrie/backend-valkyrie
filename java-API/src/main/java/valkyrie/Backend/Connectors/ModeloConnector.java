@@ -58,24 +58,26 @@ public class ModeloConnector {
             }
         };
 
-        MultipartBodyBuilder multipartBuilder = new MultipartBodyBuilder();
+        HttpHeaders headersImagem = new HttpHeaders();
+        headersImagem.setContentType(
+                imagem.getContentType() != null
+                        ? MediaType.parseMediaType(imagem.getContentType())
+                        : MediaType.APPLICATION_OCTET_STREAM
+        );
+        headersImagem.setContentDispositionFormData(
+                "imagem",
+                arquivoResource.getFilename()
+        );
 
-        // Campo imagem=@arquivo
-        multipartBuilder.part("imagem", arquivoResource)
-                .filename(arquivoResource.getFilename())
-                .contentType(
-                        imagem.getContentType() != null
-                                ? MediaType.parseMediaType(imagem.getContentType())
-                                : MediaType.APPLICATION_OCTET_STREAM
-                );
+        HttpEntity<ByteArrayResource> parteImagem =
+                new HttpEntity<>(arquivoResource, headersImagem);
 
-        // Campo nomeArquivo=teste.png
-        multipartBuilder.part("nomeArquivo", nomeArquivo);
-
-        MultiValueMap<String, HttpEntity<?>> body = multipartBuilder.build();
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("imagem", parteImagem);
+        body.add("nomeArquivo", nomeArquivo);
 
         return restClient.post()
-                .uri(this.URLModelo)
+                .uri(URLModelo)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)
                 .retrieve()
