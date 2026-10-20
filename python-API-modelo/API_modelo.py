@@ -62,3 +62,8 @@ async def predict_crime(request: ImageRequest):
         "predictions": detected_objects,
         "original_image_base64": request.image_base64
     }
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
