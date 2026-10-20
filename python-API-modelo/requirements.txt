@@ -4,3 +4,4 @@ pydantic
 ultralytics 
 Pillow 
 opencv-python-headless
+boto3
