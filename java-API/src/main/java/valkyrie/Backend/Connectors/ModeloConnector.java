@@ -52,26 +52,8 @@ public class ModeloConnector {
             return mock;
         }
 
-        ByteArrayResource resource =
-                new ByteArrayResource(imagem.getBytes()) {
-                    @Override
-                    public String getFilename() {
-                        return imagem.getOriginalFilename() != null
-                                ? imagem.getOriginalFilename()
-                                : "imagem.png";
-                    }
-                };
-
         MultipartBodyBuilder multipart = new MultipartBodyBuilder();
 
-        multipart.part("imagem", resource)
-                .filename(resource.getFilename())
-                .contentType(
-                        imagem.getContentType() != null
-                                ? MediaType.parseMediaType(
-                                imagem.getContentType())
-                                : MediaType.APPLICATION_OCTET_STREAM
-                );
 
         multipart.part("nomeArquivo", nomeArquivo)
                 .contentType(MediaType.TEXT_PLAIN);
@@ -79,12 +61,11 @@ public class ModeloConnector {
         try {
             return webClient.post()
                     .uri(URLModelo)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(multipart.build())
                     .retrieve()
                     .bodyToMono(ModeloResponse.class)
                     .block();
-
         } catch (WebClientResponseException e) {
             System.err.println("Status do modelo: " + e.getStatusCode());
             System.err.println("Resposta do modelo: " + e.getResponseBodyAsString());

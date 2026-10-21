@@ -35,7 +35,6 @@ app = FastAPI()
 
 @app.post("/predict/")
 async def predict_crime(
-    imagem: UploadFile = File(...),
     nomeArquivo: str = Form(...)
 ):
     try:
