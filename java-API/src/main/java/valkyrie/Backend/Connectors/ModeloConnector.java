@@ -63,6 +63,8 @@ public class ModeloConnector {
             return restClient
                     .method(HttpMethod.POST)
                     .uri(URLModelo)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()
                     .body(ModeloResponse.class);
