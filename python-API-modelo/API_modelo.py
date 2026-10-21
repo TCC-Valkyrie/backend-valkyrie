@@ -31,13 +31,17 @@ model = YOLO(str(model_path))
 
 app = FastAPI()
 
+class PredictionRequest(BaseModel):
+    objectId: str
+
 # Lê uma única imagem da pasta imagens da S3
 @app.post("/predict/")
 async def predict_crime(
-    objectId: str = Form(...)
+    request: PredictionRequest
 ):
+    objectId = request.objectId
 
-    image_path = f"/tmp/images/image-{objectId}.jpg"
+    image_path = f"/tmp/image-{objectId}.jpg"
 
     try:
         s3.download_file(BUCKET_CLIENT_NAME, f"images/{objectId}/image.jpg", image_path)
