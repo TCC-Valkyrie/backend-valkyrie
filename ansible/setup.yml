@@ -204,7 +204,7 @@
 
     - name: Aguardar a API ficar disponível
       ansible.builtin.uri:
-        url: http://127.0.0.1:8000/openapi.json
+        url: http://127.0.0.1:8000/health
         method: GET
         status_code: 200
       register: api_health
