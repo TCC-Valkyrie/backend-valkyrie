@@ -31,11 +31,15 @@ model = YOLO(str(model_path))
 
 app = FastAPI()
 
+class PredictionRequest(BaseModel):
+    objectId: str
+
 # Lê uma única imagem da pasta imagens da S3
 @app.post("/predict/")
 async def predict_crime(
-    objectId: str = Form(...)
+    request: PredictionRequest
 ):
+    objectId = request.objectId
 
     image_path = f"/tmp/image-{objectId}.jpg"
 
