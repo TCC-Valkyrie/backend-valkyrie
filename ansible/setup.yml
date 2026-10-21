@@ -179,15 +179,28 @@
       debug:
         var: credentials_content.stdout
 
+    - name: Criar diretório de logs da API
+      become: true
+      ansible.builtin.file:
+        path: /api/logs
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Garantir permissões do diretório da aplicação
+      become: true
+      ansible.builtin.file:
+        path: /api
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
 
     - name: Executar API com Uvicorn
       become: true
       become_user: ubuntu
       ansible.builtin.shell: |
-        set -o pipefail
-
-        mkdir -p {{ app_dir }}/logs
-
         nohup {{ app_dir }}/venv/bin/uvicorn API_modelo:app \
           --app-dir {{ app_dir }}/python-API-modelo \
           --host 0.0.0.0 \
@@ -196,21 +209,7 @@
           < /dev/null &
       args:
         executable: /bin/bash
-      environment:
-        AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
-        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
-        AWS_SESSION_TOKEN: "{{ aws_session_token }}"
-        AWS_DEFAULT_REGION: "{{ aws_region }}"
 
-    - name: Aguardar a API ficar disponível
-      ansible.builtin.uri:
-        url: http://127.0.0.1:8000/health
-        method: GET
-        status_code: 200
-      register: api_health
-      retries: 12
-      delay: 5
-      until: api_health.status == 200
 
     # - name: Executar Main.py dentro do virtualenv
     #   shell: |
