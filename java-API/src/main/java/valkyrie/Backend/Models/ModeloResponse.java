@@ -61,5 +61,22 @@ public class ModeloResponse {
         public void setBbox(List<Double> bbox) {
             this.bbox = bbox;
         }
+
+        @Override
+        public String toString() {
+            return "Prediction{" +
+                    "classe='" + classe + '\'' +
+                    ", confidence=" + confidence +
+                    ", bbox=" + bbox +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ModeloResponse{" +
+                "nomeArquivo='" + nomeArquivo + '\'' +
+                ", predictions=" + predictions +
+                '}';
     }
 }

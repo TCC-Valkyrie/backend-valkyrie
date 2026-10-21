@@ -94,6 +94,8 @@ public class FileService {
 
         ModeloResponse isCrime = modeloConnector.ChamaModelo(nomeArquivoClient);
 
+        System.out.println(isCrime);
+
         return this.inserir(isCrime);
     }
 }
