@@ -16,9 +16,9 @@
     aws_dir: "/home/ubuntu/.aws"
 
   tasks:
-    - name: Parar o processo Main.py se estiver rodando
-      shell: |
-        pkill -f "{{ app_dir }}/python-API-modelo/API_modelo.py" || true
+    - name: Parar o processo Uvicorn se estiver rodando
+      ansible.builtin.shell: |
+        pkill -f '[u]vicorn API_modelo:app' || true
       ignore_errors: yes
 
     - name: Atualizar cache do apt
