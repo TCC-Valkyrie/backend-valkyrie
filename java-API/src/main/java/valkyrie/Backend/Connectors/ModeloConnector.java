@@ -1,27 +1,29 @@
 package valkyrie.Backend.Connectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import valkyrie.Backend.Models.ModeloResponse;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 
 @Component
 public class ModeloConnector {
 
-    private final WebClient webClient;
-
+    private final RestClient restClient;
     @Value("${modelo.url}")
     private String URLModelo;
     @Value("${modelo.mock}")
     private String mockModelo;
 
-    public ModeloConnector(WebClient.Builder builder) {
-        this.webClient = builder.build();
+    public ModeloConnector(RestClient.Builder builder) {
+        this.restClient = builder.build();
     }
 
     public ModeloResponse ChamaModelo(
@@ -34,19 +36,17 @@ public class ModeloConnector {
             return mock;
         }
 
-        MultipartBodyBuilder multipart = new MultipartBodyBuilder();
-
-        multipart.part("objectId", nomeArquivo)
-                .contentType(MediaType.TEXT_PLAIN);
+        Map<String, Object> body = Map.of(
+                "objectId", nomeArquivo
+        );
 
         try {
-            return webClient.post()
+            return restClient
+                    .method(HttpMethod.POST)
                     .uri(URLModelo)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(multipart.build())
+                    .body(body)
                     .retrieve()
-                    .bodyToMono(ModeloResponse.class)
-                    .block();
+                    .body(ModeloResponse.class);
         } catch (WebClientResponseException e) {
             System.err.println("Status do modelo: " + e.getStatusCode());
             System.err.println("Resposta do modelo: " + e.getResponseBodyAsString());
