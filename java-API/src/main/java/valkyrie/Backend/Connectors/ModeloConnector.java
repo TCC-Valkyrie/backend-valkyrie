@@ -36,7 +36,7 @@ public class ModeloConnector {
 
         MultipartBodyBuilder multipart = new MultipartBodyBuilder();
 
-        multipart.part("nomeArquivo", nomeArquivo)
+        multipart.part("objectId", nomeArquivo)
                 .contentType(MediaType.TEXT_PLAIN);
 
         try {
