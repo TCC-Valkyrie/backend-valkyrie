@@ -32,7 +32,7 @@ model = YOLO(str(model_path))
 app = FastAPI()
 
 # Lê uma única imagem da pasta imagens da S3
-@app.post("/predict-image/")
+@app.post("/predict/")
 async def predict_crime(
     objectId: str = Form(...)
 ):
@@ -58,7 +58,7 @@ async def predict_crime(
             })
 
     return {
-        "nomeArquivo": nomeArquivo,
+        "nomeArquivo": objectId,
         "predictions": detected_objects
     }
 
