@@ -42,12 +42,11 @@ public class ModeloConnector {
         try {
             return webClient.post()
                     .uri(URLModelo)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(multipart.build())
                     .retrieve()
                     .bodyToMono(ModeloResponse.class)
                     .block();
-
         } catch (WebClientResponseException e) {
             System.err.println("Status do modelo: " + e.getStatusCode());
             System.err.println("Resposta do modelo: " + e.getResponseBodyAsString());
