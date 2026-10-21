@@ -37,7 +37,7 @@ async def predict_crime(
     objectId: str = Form(...)
 ):
 
-    image_path = f"/tmp/images/image-{objectId}.jpg"
+    image_path = f"/tmp/image-{objectId}.jpg"
 
     try:
         s3.download_file(BUCKET_CLIENT_NAME, f"images/{objectId}/image.jpg", image_path)
