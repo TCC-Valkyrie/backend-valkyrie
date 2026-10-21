@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, File, UploadFile, Form
 from PIL import Image
 from pydantic import BaseModel
 from ultralytics import YOLO
+import os
 
 BUCKET_MODEL_NAME = "bkt-valkyrie-modelos-455549248520"
 BUCKET_CLIENT_NAME = "bkt-valkyrie-client-455549248520"
@@ -41,10 +42,11 @@ async def predict_crime(
 ):
     objectId = request.objectId
 
-    image_path = f"/tmp/image-{objectId}.jpg"
+    image_path = os.path.join("/tmp", objectId)
+    os.makedirs(os.path.dirname(image_path), exist_ok=True)
 
     try:
-        s3.download_file(BUCKET_CLIENT_NAME, f"images/{objectId}/image.jpg", image_path)
+        s3.download_file(BUCKET_CLIENT_NAME, objectId, image_path)
     except (BotoCoreError, ClientError) as e:
         raise HTTPException(status_code=500, detail=f"Falha ao baixar imagem do S3: {e}")
 
