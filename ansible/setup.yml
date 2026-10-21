@@ -180,15 +180,37 @@
         var: credentials_content.stdout
 
 
-    - name: Executar Main.py dentro do virtualenv como ubuntu
+    - name: Executar API com Uvicorn
+      become: true
       become_user: ubuntu
-      shell: |
-        nohup {{ app_dir }}/venv/bin/uvicorn API_modelo:app --app-dir {{ app_dir }}/python-API-modelo --host 0.0.0.0 --port 8000 > /dev/null 2>&1 &
+      ansible.builtin.shell: |
+        set -o pipefail
+
+        mkdir -p {{ app_dir }}/logs
+
+        nohup {{ app_dir }}/venv/bin/uvicorn API_modelo:app \
+          --app-dir {{ app_dir }}/python-API-modelo \
+          --host 0.0.0.0 \
+          --port 8000 \
+          >> {{ app_dir }}/logs/uvicorn.log 2>&1 \
+          < /dev/null &
+      args:
+        executable: /bin/bash
       environment:
         AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
         AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
         AWS_SESSION_TOKEN: "{{ aws_session_token }}"
         AWS_DEFAULT_REGION: "{{ aws_region }}"
+
+    - name: Aguardar a API ficar disponível
+      ansible.builtin.uri:
+        url: http://127.0.0.1:8000/openapi.json
+        method: GET
+        status_code: 200
+      register: api_health
+      retries: 12
+      delay: 5
+      until: api_health.status == 200
 
     # - name: Executar Main.py dentro do virtualenv
     #   shell: |

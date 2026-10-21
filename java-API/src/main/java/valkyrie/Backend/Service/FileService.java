@@ -38,9 +38,9 @@ public class FileService {
         var isCrime = resultado.getPredictions().stream()
                 .anyMatch(prediction -> prediction.getConfidence() >= 0.70
                         && java.util.Set.of(
-                                "arma",
-                                "assalto",
-                                "furto").contains(
+                                "burglary",
+                                "fighting",
+                                "robbery").contains(
                                         prediction.getClasse().toLowerCase(
                                                 java.util.Locale.ROOT)));
 
@@ -50,7 +50,7 @@ public class FileService {
         Double accuracy = 0.0;
 
         if (optAccuracy.isPresent())
-            accuracy = optAccuracy.getAsDouble();
+            accuracy = optAccuracy.getAsDouble() * 100;
 
         crime.setResultado(isCrime);
         crime.setAccuracy(accuracy);
