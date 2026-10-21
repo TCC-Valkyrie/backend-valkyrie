@@ -3,6 +3,7 @@ package valkyrie.Backend.Connectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -11,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import valkyrie.Backend.Models.ModeloResponse;
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
@@ -25,6 +27,11 @@ public class ModeloConnector {
     private String mockModelo;
 
     public ModeloConnector(RestClient.Builder builder) {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+
+
         this.restClient = builder
                 .requestInterceptor((request, body, execution) -> {
                     System.out.println("========== REQUISIÇÃO AO MODELO ==========");
@@ -42,6 +49,7 @@ public class ModeloConnector {
 
                     return response;
                 })
+                .requestFactory(new JdkClientHttpRequestFactory(httpClient))
                 .build();
     }
 
