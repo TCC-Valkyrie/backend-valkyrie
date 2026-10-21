@@ -35,21 +35,17 @@ public class FileService {
             ModeloResponse resultado) {
         ResultadoCrime crime = new ResultadoCrime();
 
-        var isCrime =  resultado.getPredictions().stream()
-                .anyMatch(prediction ->
-                        prediction.getConfidence() >= 0.70
-                                && java.util.Set.of(
+        var isCrime = resultado.getPredictions().stream()
+                .anyMatch(prediction -> prediction.getConfidence() >= 0.70
+                        && java.util.Set.of(
                                 "arma",
                                 "assalto",
-                                "furto"
-                        ).contains(
-                                prediction.getClasse().toLowerCase(
-                                        java.util.Locale.ROOT
-                                )
-                        )
-                );
+                                "furto").contains(
+                                        prediction.getClasse().toLowerCase(
+                                                java.util.Locale.ROOT)));
 
-        OptionalDouble optAccuracy = resultado.getPredictions().stream().mapToDouble(value -> value.getConfidence()).average();
+        OptionalDouble optAccuracy = resultado.getPredictions().stream().mapToDouble(value -> value.getConfidence())
+                .average();
 
         Double accuracy = 0.0;
 
@@ -96,7 +92,7 @@ public class FileService {
         if (nomeArquivoClient.equalsIgnoreCase(""))
             throw new Exception("Erro ao subir arquivo S3");
 
-        ModeloResponse isCrime = modeloConnector.ChamaModelo(imagem, nomeArquivoClient);
+        ModeloResponse isCrime = modeloConnector.ChamaModelo(nomeArquivoClient);
 
         return this.inserir(isCrime);
     }
