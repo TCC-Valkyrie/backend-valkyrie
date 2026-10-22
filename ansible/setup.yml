@@ -10,9 +10,9 @@
     java_app_dir: "{{ app_dir }}/java-API"
     java_db_dir: "{{ app_dir }}/java-API/db"
     java_network: crime-network
-    aws_bucket_raw: "bkt-valkyrie-raw-455549248520"
-    aws_bucket_trusted: "bkt-valkyrie-trusted-455549248520"
-    aws_bucket_client: "bkt-valkyrie-client-455549248520"
+    aws_bucket_raw: "bkt-valkyrie-raw-083826577918"
+    aws_bucket_trusted: "bkt-valkyrie-trusted-083826577918"
+    aws_bucket_client: "bkt-valkyrie-client-083826577918"
     aws_dir: "/home/ubuntu/.aws"
 
   tasks:
