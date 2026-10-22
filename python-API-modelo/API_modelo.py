@@ -10,8 +10,8 @@ from pydantic import BaseModel
 from ultralytics import YOLO
 import os
 
-BUCKET_MODEL_NAME = "bkt-valkyrie-modelos-455549248520"
-BUCKET_CLIENT_NAME = "bkt-valkyrie-client-455549248520"
+BUCKET_MODEL_NAME = "bkt-valkyrie-modelos-455549248523"
+BUCKET_CLIENT_NAME = "bkt-valkyrie-client-083826577918"
 MODEL_KEY = "best.pt"
 LOCAL_MODEL_PATH = Path("/tmp/best.pt")
 CONF_THRESHOLD = 0.25
