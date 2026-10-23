@@ -69,17 +69,17 @@ public class CrimeVideoService {
 
         Path outputPattern = framesDir.resolve("frame_%06d.jpg");
         
-//        String ffmpegPath = "C:\\ffmpeg\\ffmpeg-2026-10-01-git-0b01ed76aa-essentials_build\\bin\\ffmpeg.exe";
+        //String ffmpegPath = "C:\\ffmpeg\\ffmpeg-2026-10-01-git-0b01ed76aa-essentials_build\\bin\\ffmpeg.exe";
 
         ProcessBuilder processBuilder = new ProcessBuilder(
-                ffmpegPath,
-                "-i",
-                videoPath.toString(),
-                "-vf",
-                "fps=1/0.3,scale=224:224",
-                "-q:v",
-                "2",
-                outputPattern.toString()
+            ffmpegPath,
+            "-i",
+            videoPath.toString(),
+            "-vf",
+            "fps=1/0.3,scale=224:224,hue=s=0",
+            "-q:v",
+            "2",
+            outputPattern.toString()
         );
 
         processBuilder.redirectErrorStream(true);
@@ -224,15 +224,15 @@ public class CrimeVideoService {
 
 //        String ffmpegPath = "C:\\ffmpeg\\ffmpeg-2026-10-01-git-0b01ed76aa-essentials_build\\bin\\ffmpeg.exe";
 
-        ProcessBuilder processBuilder = new ProcessBuilder(
-                ffmpegPath,
-                "-i",
-                imagePath.toString(),
-                "-vf",
-                "scale=244:244",
-                "-q:v",
-                "2",
-                outputPath.toString()
+         ProcessBuilder processBuilder = new ProcessBuilder(
+            ffmpegPath,
+            "-i",
+            imagePath.toString(),
+            "-vf",
+            "scale=224:224,hue=s=0",
+            "-q:v",
+            "2",
+            outputPath.toString()
         );
 
         processBuilder.redirectErrorStream(true);
