@@ -77,6 +77,7 @@ public class CrimeVideoService {
             videoPath.toString(),
             "-vf",
             "fps=1/0.3,scale=224:224,format=gray",
+                "-pix_fmt", "gray",
             "-q:v",
             "2",
             outputPattern.toString()
