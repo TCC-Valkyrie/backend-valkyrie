@@ -10,9 +10,10 @@
     java_app_dir: "{{ app_dir }}/java-API"
     java_db_dir: "{{ app_dir }}/java-API/db"
     java_network: crime-network
-    aws_bucket_raw: "bkt-valkyrie-raw-083826577918"
-    aws_bucket_trusted: "bkt-valkyrie-trusted-083826577918"
-    aws_bucket_client: "bkt-valkyrie-client-083826577918"
+    aws_bucket_raw: "{{ AWS_BUCKET_RAW }}"
+    aws_bucket_trusted: "{{ AWS_BUCKET_TRUSTED }}"
+    aws_bucket_client: "{{ AWS_BUCKET_CLIENT }}"
+    url_modelo: "{{ URL_MODELO }}"
     aws_dir: "/home/ubuntu/.aws"
 
   tasks:
@@ -264,6 +265,7 @@
           AWS_S3_BUCKET_RAW={{ aws_bucket_raw }}
           AWS_S3_BUCKET_TRUSTED={{ aws_bucket_trusted }}
           AWS_S3_BUCKET_CLIENT={{ aws_bucket_client }}
+          MODELO_URL={{ url_modelo }}
       no_log: true
 
     - name: Substituir credenciais AWS fixas no Docker Compose

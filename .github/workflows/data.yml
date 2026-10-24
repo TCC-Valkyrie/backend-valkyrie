@@ -54,5 +54,5 @@ jobs:
     - name: Executa Ansible Playbook
       run: |
         ansible-playbook -v -i ansible/inventory ansible/setup.yml \
-          --extra-vars "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }} AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }} "
+          --extra-vars "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }} AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }} AWS_BUCKET_RAW=${{ secrets.AWS_BUCKET_RAW }} AWS_BUCKET_TRUSTED=${{ secrets.AWS_BUCKET_TRUSTED }} AWS_BUCKET_CLIENT=${{ secrets.AWS_BUCKET_CLIENT }} AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }} AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }} AWS_BUCKET_RAW=${{ secrets.AWS_BUCKET_RAW }} AWS_BUCKET_TRUSTED=${{ secrets.AWS_BUCKET_TRUSTED }} URL_MODELO=${{ secrets.URL_MODELO }} "
 
