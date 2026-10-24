@@ -231,7 +231,7 @@ public class CrimeVideoService {
                 "-vf", "scale=224:224,format=gray",
                 "-frames:v", "1",
                 "-c:v", "mjpeg",
-                "-pix_fmt", "yuvj444p",
+                "-pix_fmt", "gray",
                 outputPath.toString()
         );
 
