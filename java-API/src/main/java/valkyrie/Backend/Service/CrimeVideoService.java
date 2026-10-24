@@ -76,7 +76,7 @@ public class CrimeVideoService {
             "-i",
             videoPath.toString(),
             "-vf",
-            "fps=1/0.3,scale=224:224,hue=s=0",
+            "fps=1/0.3,scale=224:224,format=gray",
             "-q:v",
             "2",
             outputPattern.toString()
@@ -229,7 +229,7 @@ public class CrimeVideoService {
             "-i",
             imagePath.toString(),
             "-vf",
-            "scale=224:224,hue=s=0",
+            "scale=224:224,format=gray",
             "-q:v",
             "2",
             outputPath.toString()

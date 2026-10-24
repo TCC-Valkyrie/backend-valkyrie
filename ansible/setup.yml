@@ -289,6 +289,8 @@
           env: AWS_S3_BUCKET_TRUSTED
         - key: AWS_S3_BUCKET_CLIENT
           env: AWS_S3_BUCKET_CLIENT
+        - key: MODELO_URL
+          env: MODELO_URL
 
     # - name: Compilar projeto Java com Maven Wrapper
     #   become_user: ubuntu
