@@ -224,15 +224,15 @@ public class CrimeVideoService {
 
 //        String ffmpegPath = "C:\\ffmpeg\\ffmpeg-2026-10-01-git-0b01ed76aa-essentials_build\\bin\\ffmpeg.exe";
 
-         ProcessBuilder processBuilder = new ProcessBuilder(
-            ffmpegPath,
-            "-i",
-            imagePath.toString(),
-            "-vf",
-            "scale=224:224,format=gray",
-            "-q:v",
-            "2",
-            outputPath.toString()
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                ffmpegPath,
+                "-y",
+                "-i", imagePath.toString(),
+                "-vf", "scale=224:224,format=gray",
+                "-frames:v", "1",
+                "-c:v", "mjpeg",
+                "-pix_fmt", "yuvj444p",
+                outputPath.toString()
         );
 
         processBuilder.redirectErrorStream(true);
