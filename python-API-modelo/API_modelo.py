@@ -42,16 +42,30 @@ def predict_image(image: Image.Image):
     detected_objects = []
 
     for result in results:
-        for box in result.boxes:
+        if len(result) > 0:
+            for box in result.boxes:
+                if box is not None and box.conf[0] >= CONF_THRESHOLD:
+                    detected_objects.append({
+                        "class": model.names[int(box.cls[0])],
+                        "confidence": round(float(box.conf[0]), 3),
+                        "bbox": box.xyxy[0].tolist()
+                    })
+                else:
+                    detected_objects.append({
+                        "class": "No crime detected",
+                        "confidence": 0.0,
+                        "bbox": []
+                    })
+        else:
             detected_objects.append({
-                "class": model.names[int(box.cls[0])],
-                "confidence": round(float(box.conf[0]), 3),
-                "bbox": box.xyxy[0].tolist()
+                "class": "No crime detected",
+                "confidence": 0.0,
+                "bbox": []
             })
 
     return detected_objects
 
-@app.post("/predict/")
+@app.post("/predict")
 async def predict_crime(
     request: PredictionRequest
 ):
@@ -67,9 +81,9 @@ async def predict_crime(
 
     detected_objects = []
 
-    if "/videos/" in objectId:
+    if "videos/" in objectId:
         with zipfile.ZipFile(obj_path, 'r') as zip_ref:
-            temp_dir = obj_path + "/extracted"
+            temp_dir = obj_path.replace('frames.zip', 'extracted')
             os.makedirs(temp_dir, exist_ok=True)
             zip_ref.extractall(temp_dir)
 
@@ -82,7 +96,7 @@ async def predict_crime(
             image = Image.open(image_path).convert("L")
             detected_objects.extend(predict_image(image))
         
-    elif "/images/" in objectId:
+    elif "images/" in objectId:
         image = Image.open(obj_path).convert("L")
         detected_objects = predict_image(image)
 
