@@ -105,7 +105,7 @@ public class FileService {
 
             return nomeArquivoClient;
         } catch (IOException io) {
-            throw new Exception("Erro no bucket");
+            throw new Exception("Erro ao tentar tratar imagem ou subir no bucket.");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
