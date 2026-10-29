@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import valkyrie.Backend.Comum.FileComum;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,18 +18,17 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
-public class CrimeVideoService {
-
-    private final S3Client s3Client;
-
-    @Value("${aws.s3.bucket.client}")
-    private String bucket;
-
+public class VideoService {
     @Value("${ffmpeg.path}")
     private String ffmpegPath;
 
-    public CrimeVideoService(S3Client s3Client) {
-        this.s3Client = s3Client;
+    private final FileComum comum;
+
+    private final S3Service s3Service;
+
+    public VideoService(S3Service s3Service, FileComum comum) {
+        this.comum = comum;
+        this.s3Service = s3Service;
     }
 
     public String processVideo(MultipartFile video) throws Exception {
@@ -51,14 +51,14 @@ public class CrimeVideoService {
             createZip(framesDir, zipPath);
 
             String s3Key = "videos/" + UUID.randomUUID() + "/frames.zip";
-            uploadToS3(zipPath, s3Key);
+            this.s3Service.uploadVideoToS3(zipPath, s3Key);
 
             return s3Key;
 
         } catch (Exception e) {
             throw e;
         } finally {
-            deleteDirectory(workDir);
+            comum.deleteDirectory(workDir);
         }
     }
 
@@ -147,130 +147,5 @@ public class CrimeVideoService {
         }
     }
 
-    private void uploadToS3(
-            Path zipPath,
-            String s3Key
-    ) throws IOException {
 
-        PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(s3Key)
-                .contentType("application/zip")
-                .build();
-
-        s3Client.putObject(
-                request,
-                RequestBody.fromFile(zipPath)
-        );
-    }
-
-    private void deleteDirectory(Path directory) {
-
-        if (directory == null || !Files.exists(directory)) {
-            return;
-        }
-
-        try {
-            Files.walk(directory)
-                    .sorted(Comparator.reverseOrder())
-                    .forEach(path -> {
-                        try {
-                            Files.deleteIfExists(path);
-                        } catch (IOException ignored) {
-                        }
-                    });
-
-        } catch (IOException ignored) {
-        }
-    }
-
-    public String processImage(MultipartFile image) throws Exception {
-
-        Path workDir = Files.createTempDirectory("image-processing-");
-
-        try {
-            Path imagePath = workDir.resolve(
-                    UUID.randomUUID() + ".jpg"
-            );
-
-            image.transferTo(imagePath);
-
-            Path resizedImagePath = workDir.resolve(
-                    UUID.randomUUID() + "_244x244.jpg"
-            );
-
-            resizeImage(imagePath, resizedImagePath);
-
-            String s3Key = "images/" + UUID.randomUUID() + "/image.jpg";
-
-            uploadImageToS3(
-                    resizedImagePath,
-                    s3Key
-            );
-
-            return s3Key;
-
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            deleteDirectory(workDir);
-        }
-    }
-
-
-    private void resizeImage(
-            Path imagePath,
-            Path outputPath
-    ) throws IOException, InterruptedException {
-
-//        String ffmpegPath = "C:\\ffmpeg\\ffmpeg-2026-10-01-git-0b01ed76aa-essentials_build\\bin\\ffmpeg.exe";
-
-        ProcessBuilder processBuilder = new ProcessBuilder(
-                ffmpegPath,
-                "-y",
-                "-i", imagePath.toString(),
-                "-vf", "scale=224:224,format=gray",
-                "-frames:v", "1",
-                "-c:v", "mjpeg",
-                "-pix_fmt", "gray",
-                outputPath.toString()
-        );
-
-        processBuilder.redirectErrorStream(true);
-
-        Process process = processBuilder.start();
-
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream())
-        )) {
-            while (reader.readLine() != null) {
-            }
-        }
-
-        int exitCode = process.waitFor();
-
-        if (exitCode != 0) {
-            throw new IllegalStateException(
-                    "Erro ao redimensionar imagem. FFmpeg exit code: "
-                            + exitCode
-            );
-        }
-    }
-
-    private void uploadImageToS3(
-            Path imagePath,
-            String s3Key
-    ) throws IOException {
-
-        PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(s3Key)
-                .contentType("image/jpeg")
-                .build();
-
-        s3Client.putObject(
-                request,
-                RequestBody.fromFile(imagePath)
-        );
-    }
 }

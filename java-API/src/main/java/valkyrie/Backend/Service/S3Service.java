@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import valkyrie.Backend.Enum.BucketType;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.UUID;
 
 @Service
@@ -56,5 +57,38 @@ public class S3Service {
         );
 
         return nomeArquivo;
+    }
+    public void uploadImageToS3(
+            Path imagePath,
+            String s3Key
+    ) throws IOException {
+
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucketClient)
+                .key(s3Key)
+                .contentType("image/jpeg")
+                .build();
+
+        s3Client.putObject(
+                request,
+                RequestBody.fromFile(imagePath)
+        );
+    }
+
+    public void uploadVideoToS3(
+            Path zipPath,
+            String s3Key
+    ) throws IOException {
+
+        PutObjectRequest request = PutObjectRequest.builder()
+                .bucket(bucketClient)
+                .key(s3Key)
+                .contentType("application/zip")
+                .build();
+
+        s3Client.putObject(
+                request,
+                RequestBody.fromFile(zipPath)
+        );
     }
 }

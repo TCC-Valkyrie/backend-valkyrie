@@ -69,7 +69,7 @@ public class FileController {
         }
     }
 
-    @PostMapping("/teste")
+    @PostMapping("/healthCheck")
     public ResponseEntity<Boolean> Teste() {
         return ResponseEntity.ok(true);
     }
