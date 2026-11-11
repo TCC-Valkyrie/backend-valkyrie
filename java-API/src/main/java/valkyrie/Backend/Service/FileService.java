@@ -9,11 +9,11 @@ import valkyrie.Backend.Models.Entities.ResultadoCrime;
 import valkyrie.Backend.Models.ModeloResponse;
 import valkyrie.Backend.Repository.ResultadoCrimeRepository;
 
+import java.awt.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.OptionalDouble;
-import java.util.stream.Collectors;
 
 @Service
 public class FileService {
@@ -21,14 +21,16 @@ public class FileService {
     private final ResultadoCrimeRepository repository;
     private final ModeloConnector modeloConnector;
     private final S3Service s3Service;
-    private final CrimeVideoService crimeVideoService;
+    private final VideoService videoService;
+    private final ImageService imageService;
 
     public FileService(ResultadoCrimeRepository repository, ModeloConnector modeloConnector, S3Service s3Service,
-            CrimeVideoService crimeVideoService) {
+            VideoService videoService, ImageService imageService) {
         this.repository = repository;
         this.modeloConnector = modeloConnector;
         this.s3Service = s3Service;
-        this.crimeVideoService = crimeVideoService;
+        this.videoService = videoService;
+        this.imageService = imageService;
     }
 
     private ResultadoCrime inserir(
@@ -75,19 +77,8 @@ public class FileService {
         nomeArquivoClient = s3Service.uploadSS3(imagem, BucketType.RAW);
 
         System.out.println("Arquivo subido para RAW: " + nomeArquivoClient);
-        try {
-            if (contentType != null && contentType.startsWith("video/")) {
-                s3Service.uploadSS3(imagem, BucketType.TRUSTED);
-                nomeArquivoClient = crimeVideoService.processVideo(imagem);
-            } else if (contentType != null && contentType.startsWith("image/")) {
-                s3Service.uploadSS3(imagem, BucketType.TRUSTED);
-                nomeArquivoClient = crimeVideoService.processImage(imagem);
-            } else {
-                throw new ArquivoInvalidoException("Arquivo não é imagem nem video");
-            }
-        } catch (IOException io) {
-            throw new Exception("Erro no bucket");
-        }
+
+        nomeArquivoClient = trataImagemVideo(contentType, imagem);
 
         if (nomeArquivoClient.equalsIgnoreCase(""))
             throw new Exception("Erro ao subir arquivo S3");
@@ -97,5 +88,26 @@ public class FileService {
         System.out.println(isCrime);
 
         return this.inserir(isCrime);
+    }
+
+    private String trataImagemVideo(String contentType, MultipartFile imagem) throws Exception {
+        String nomeArquivoClient = "";
+        try {
+            if (contentType != null && contentType.startsWith("video/")) {
+                s3Service.uploadSS3(imagem, BucketType.TRUSTED);
+                nomeArquivoClient = videoService.processVideo(imagem);
+            } else if (contentType != null && contentType.startsWith("image/")) {
+                s3Service.uploadSS3(imagem, BucketType.TRUSTED);
+                nomeArquivoClient = imageService.processImage(imagem);
+            } else {
+                throw new ArquivoInvalidoException("Arquivo não é imagem nem video");
+            }
+
+            return nomeArquivoClient;
+        } catch (IOException io) {
+            throw new Exception("Erro ao tentar tratar imagem ou subir no bucket.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
